@@ -1,0 +1,31 @@
+.login {
+  max-width: 350px;
+  margin: 60px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.campo {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  box-sizing: border-box; /* Para que el padding no ensanche el cuadro */
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #28a745; /* Un verde para diferenciar del registro */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
