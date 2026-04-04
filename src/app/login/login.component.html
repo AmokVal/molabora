@@ -1,0 +1,20 @@
+<div class="login">
+  <h2>Entrar en Molabora</h2>
+
+  <form (ngSubmit)="entrar()">
+    <div class="campo">
+      <label>Email:</label><br>
+      <input type="email" name="email" [(ngModel)]="credenciales.email" placeholder="Tu correo" required>
+    </div>
+
+    <div class="campo">
+      <label>Contraseña:</label><br>
+      <input type="password" name="password" [(ngModel)]="credenciales.password" placeholder="Tu clave secreta" required>
+    </div>
+
+    <button type="submit">Entrar</button>
+  </form>
+
+  <hr>
+  <p>¿Aún no tienes cuenta? <a routerLink="/registro">Crea una aquí</a></p>
+</div>

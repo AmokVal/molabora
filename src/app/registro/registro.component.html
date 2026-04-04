@@ -1,0 +1,24 @@
+<div class="registro">
+  <h2>Crear cuenta en Molabora</h2>
+
+  <form (ngSubmit)="enviarRegistro()">
+    <div class="campo">
+      <label>Nombre completo:</label><br>
+      <input type="text" name="name" [(ngModel)]="usuario.name" placeholder="Escribe tu nombre" required>
+    </div>
+
+    <div class="campo">
+      <label>Email:</label><br>
+      <input type="email" name="email" [(ngModel)]="usuario.email" placeholder="Tu correo" required>
+    </div>
+
+    <div class="campo">
+      <label>Contraseña:</label><br>
+      <input type="password" name="password" [(ngModel)]="usuario.password" placeholder="Tu clave secreta" required>
+    </div>
+
+    <button type="submit">Finalizar Registro</button>
+  </form>
+
+  <p>¿Ya tienes cuenta? <a routerLink="/login">Haz login aquí</a></p>
+</div>
