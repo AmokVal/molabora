@@ -1,6 +1,8 @@
 .login {
-  max-width: 350px;
-  margin: 60px auto;
+  
+  background: linear-gradient(45deg, #4facfe, #00f2fe);
+  max-width: 500px;
+  margin: 100px auto;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -23,7 +25,7 @@ input {
 button {
   width: 100%;
   padding: 10px;
-  background-color: #28a745; /* Un verde para diferenciar del registro */
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;

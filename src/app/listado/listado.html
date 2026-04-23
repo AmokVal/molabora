@@ -1,1 +1,32 @@
-<p>listado works!</p>
+<div class="contenedor-busqueda">
+  <h2>Buscar Especialistas en Molabora</h2>
+
+  <div class="buscador">
+    <input 
+      type="text" 
+      [(ngModel)]="filtroUsuario" 
+      (input)="filtrarEspecialistas()" 
+      placeholder="Ej: Diseñador, Desarrollador...">
+  </div>
+
+  <div class="tags-sugeridos">
+    <span *ngFor="let rol of rolesDisponibles" class="tag">
+      {{ rol }}
+    </span>
+  </div>
+
+  <hr>
+
+  <div class="resultados-grid">
+    <div *ngIf="resultados.length === 0" class="no-results">
+      No se encontraron especialistas con ese perfil.
+    </div>
+
+    <div *ngFor="let esp of resultados" class="tarjeta-especialista">
+      <h3>{{ esp.nombre }}</h3>
+      <p><strong>Especialidad:</strong> <span class="badge">{{ esp.rol }}</span></p>
+      <p><strong>Ubicación:</strong> {{ esp.localizacion }}</p>
+      <button>Ver Perfil</button>
+    </div>
+  </div>
+</div>

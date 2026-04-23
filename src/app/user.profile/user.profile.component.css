@@ -1,0 +1,21 @@
+.profile-container {
+  padding: 20px;
+  max-width: 400px;
+  margin: auto;
+}
+
+input.ng-invalid.ng-touched, select.ng-invalid.ng-touched {
+  border: 2px solid red;
+  background-color: #fff0f0;
+}
+
+.error {
+  color: red;
+  font-size: 12px;
+  display: block;
+}
+
+button {
+  margin-top: 10px;
+  cursor: pointer;
+}

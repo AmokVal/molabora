@@ -1,0 +1,34 @@
+<div class="profile-container">
+  <h2>Perfil de Usuario</h2>
+
+  <div v-if="!isEditing && submittedData">
+    <p><strong>Nombre:</strong> {{ submittedData.nombre }}</p>
+    <p><strong>Usuario:</strong> {{ submittedData.usuario }}</p>
+    <p><strong>Rol:</strong> {{ submittedData.rol }}</p>
+    <button (click)="toggleEdit()">Editar Perfil</button>
+  </div>
+
+  <form [formGroup]="profileForm" (ngSubmit)="enviar()" *ngIf="isEditing || !submittedData">
+    <div>
+      <label>Nombre Real:</label>
+      <input formControlName="nombre" placeholder="Nombre completo">
+      <small *ngIf="profileForm.get('nombre')?.errors?.['pattern']" class="error">Solo se permiten letras.</small>
+      <small *ngIf="profileForm.get('nombre')?.errors?.['forbiddenWord']" class="error">Palabra no permitida.</small>
+    </div>
+
+    <div>
+      <label>Usuario:</label>
+      <input formControlName="usuario" placeholder="Username">
+    </div>
+
+    <div>
+      <label>Rol (Tag):</label>
+      <select formControlName="rol">
+        <option *ngFor="let rol of roles" [value]="rol">{{ rol }}</option>
+      </select>
+    </div>
+
+    <button type="submit" [disabled]="profileForm.pending">Enviar al Back</button>
+    <button type="button" (click)="toggleEdit()" *ngIf="submittedData">Cancelar</button>
+  </form>
+</div>

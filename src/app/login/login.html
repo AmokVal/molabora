@@ -1,20 +1,43 @@
+<img Src="icons/mola.jpeg" width="200" height="50" priority>
+
 <div class="login">
-  <h2>Entrar en Molabora</h2>
-  
-  <form>
-    <div class="campo">
-      <label>Nombre de usuario o Email:</label><br>
-      <input type="text" placeholder="Tu identificación">
-    </div>
+ 
+<h2>Iniciar en sesión</h2>
 
-    <div class="campo">
-      <label>Contraseña:</label><br>
-      <input type="password" placeholder="Tu clave secreta">
-    </div>
-
-    <button type="button">Entrar</button>
-  </form>
-
-  <hr>
-  <p>¿Aún no tienes cuenta? <a routerLink="/registro">Crea una aquí</a></p>
+<form>
+ 
+<div *ngIf="mensajeError.length>0" style="color: brown;">{{mensajeError}}</div>
+ 
+<div class="campo">
+ 
+<label>Usuario o Email:</label><br>
+ 
+   <input type="text" [(ngModel)]="usuario" [ngModelOptions]="{standalone: true}" placeholder="Tu identificación">
+ 
+  </div>
+ 
+ 
+  <div class="campo">
+ 
+   <label>Contraseña:</label><br>
+ 
+   <input type="password" [(ngModel)]="password" [ngModelOptions]="{standalone: true}" placeholder="Tu clave secreta">
+ 
+  </div>
+ 
+ 
+ 
+  <button (click)="hacerLogin()" type="button">Iniciar</button>
+ 
+ </form>
+ 
+ 
+ 
+ 
+ 
+ <hr>
+ 
+ <p>¿Aún no tienes cuenta? <a routerLink="/registro">Crea una aquí</a></p>
+ <p>¿Olvide contraseña? <a routerLink="/registro">Recuperar contraseña</a></p>
+ 
 </div>

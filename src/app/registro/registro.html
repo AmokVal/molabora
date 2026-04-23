@@ -1,36 +1,49 @@
 <div class="registro">
   <h2>Crear cuenta en Molabora</h2>
   
-  <form>
+  <form [formGroup]="registroForm" (ngSubmit)="enviarRegistro()">
     <div class="campo">
       <label>Nombre completo:</label><br>
-      <input type="text" placeholder="Escribe tu nombre">
+      <input #nombreInput formControlName="nombreCompleto" type="text" placeholder="Escribe tu nombre">
+      
+      <div *ngIf="registroForm.get('nombreCompleto')?.touched && registroForm.get('nombreCompleto')?.invalid">
+        <small *ngIf="registroForm.get('nombreCompleto')?.errors?.['pattern']" style="color: red;">
+          Error: El nombre solo debe contener letras.
+        </small>
+        <small *ngIf="registroForm.get('nombreCompleto')?.errors?.['palabraProhibida']" style="color: red;">
+          Error: Contiene palabras no permitidas.
+        </small>
+      </div>
     </div>
 
     <div class="campo">
       <label>Estudios:</label><br>
-      <input type="text" placeholder="Titulaciones o formación">
+      <input formControlName="estudios" type="text" placeholder="Titulaciones o formación">
     </div>
 
     <div class="campo">
       <label>Experiencia:</label><br>
-      <textarea placeholder="Cuéntanos tu trayectoria"></textarea>
+      <textarea formControlName="experiencia" placeholder="Cuéntanos tu trayectoria"></textarea>
     </div>
 
     <div class="campo">
       <label>Localización:</label><br>
-      <input type="text" placeholder="Ciudad o provincia">
+      <input formControlName="localizacion" type="text" placeholder="Ciudad o provincia">
     </div>
 
     <div class="campo">
       <label>Tipo de perfil:</label><br>
-      <select>
+      <select formControlName="tipoPerfil">
         <option value="cliente">Busco un especialista (Cliente)</option>
         <option value="especialista">Ofrezco mis servicios (Especialista)</option>
+        <option value="diseñador">Diseñador</option>
+        <option value="tester">Tester</option>
+        <option value="analista">Analista</option>
+        <option value="programador">Programador</option>
       </select>
     </div>
 
-    <button type="button">Finalizar Registro</button>
+    <button type="submit">Finalizar Registro</button>
   </form>
 
   <p>¿Ya tienes cuenta? <a routerLink="/login">Haz login aquí</a></p>
