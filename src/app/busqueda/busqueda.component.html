@@ -1,0 +1,103 @@
+<div style="background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <!-- Barra de búsqueda principal -->
+  <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+    <input 
+      type="text" 
+      [(ngModel)]="nombre" 
+      (keyup.enter)="buscar()"
+      placeholder="Buscar por nombre..."
+      style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 1em;"
+    />
+    <button 
+      (click)="buscar()"
+      style="padding: 12px 24px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"
+    >
+      Buscar
+    </button>
+    <button 
+      (click)="mostrarFiltros = !mostrarFiltros"
+      style="padding: 12px 24px; background: #6c757d; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"
+    >
+      {{ mostrarFiltros ? 'Ocultar' : 'Filtros' }}
+    </button>
+  </div>
+
+  <!-- Filtros avanzados -->
+  <div *ngIf="mostrarFiltros" style="background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
+    <h3 style="margin-top: 0; color: #333;">Filtros Avanzados</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+      <!-- Especialización -->
+      <div>
+        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">
+          Especialización / Palabras clave
+        </label>
+        <input 
+          type="text" 
+          [(ngModel)]="especializacion"
+          placeholder="Ej: Python, JavaScript, Marketing..."
+          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+        />
+      </div>
+
+      <!-- Ordenamiento -->
+      <div>
+        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">
+          Ordenar por
+        </label>
+        <select 
+          [(ngModel)]="ordenar"
+          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+        >
+          <option value="relevancia">Relevancia (Premium primero)</option>
+          <option value="precio_bajo">Precio: Menor a Mayor</option>
+          <option value="precio_alto">Precio: Mayor a Menor</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+      <!-- Precio Mínimo -->
+      <div>
+        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">
+          Precio Mínimo (€)
+        </label>
+        <input 
+          type="number" 
+          [(ngModel)]="precioMin"
+          placeholder="0"
+          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+        />
+      </div>
+
+      <!-- Precio Máximo -->
+      <div>
+        <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">
+          Precio Máximo (€)
+        </label>
+        <input 
+          type="number" 
+          [(ngModel)]="precioMax"
+          placeholder="1000"
+          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
+        />
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button 
+        (click)="limpiarFiltros()"
+        style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
+      >
+        Limpiar Filtros
+      </button>
+      <button 
+        (click)="buscar()"
+        style="padding: 10px 20px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
+      >
+        Aplicar Filtros
+      </button>
+    </div>
+  </div>
+</div>

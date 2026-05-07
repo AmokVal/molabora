@@ -1,19 +1,224 @@
-<div style="padding: 20px; max-width: 600px; margin: 0 auto; font-family: sans-serif;">
-  <h2 style="text-align: center;">Listado de Usuarios</h2>
-
-  <!-- El mensaje se muestra SOLO si la lista está vacía (cero elementos) -->
-  <div *ngIf="listaUsuarios.length === 0" style="text-align: center; color: #666; font-weight: bold;">
-    {{ estadoMensaje }}
+<div style="padding: 20px; max-width: 1200px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f9f9f9;">
+  <!-- Barra superior -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #FF9933 0%, #FF6B35 100%); border-radius: 8px;">
+    <h1 style="margin: 0; color: white; font-size: 2em;">MoLabora</h1>
+    <div style="display: flex; gap: 15px; align-items: center;">
+      <span *ngIf="currentUser" style="color: white; font-size: 0.95em;">
+        <strong>{{ currentUser.name }}</strong>
+        <span *ngIf="currentUser.is_premium" style="background: #FFD700; color: #333; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-left: 8px; font-weight: bold;">PREMIUM</span>
+      </span>
+      <button 
+        *ngIf="currentUser?.role === 'administrador'"
+        (click)="irAModeracion()"
+        style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
+      >
+        Panel Admin
+      </button>
+      <button 
+        (click)="logout()"
+        style="padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 6px; cursor: pointer; font-weight: 600;"
+      >
+        Logout
+      </button>
+    </div>
   </div>
 
-  <!-- Las tarjetas se muestran SOLO si la lista tiene más de cero elementos -->
-  <div *ngIf="listaUsuarios.length > 0" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+  <!-- Sección Mi Perfil -->
+  <div style="background: #f5f5f5; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+    <h2 style="color: #FF9933; margin-top: 0; border-bottom: 3px solid #FF9933; padding-bottom: 10px;">Mi Perfil</h2>
 
-    <div *ngFor="let user of listaUsuarios" style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; background-color: #fcfcfc; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-      <p style="margin: 0 0 10px 0;"><strong>ID:</strong> {{ user.id }}</p>
-      <p style="margin: 0 0 10px 0;"><strong>Nombre:</strong> {{ user.name }}</p>
-      <p style="margin: 0;"><strong>Email:</strong> {{ user.email }}</p>
+    <div *ngIf="errorMensaje" style="background: #f8d7da; color: #721c24; border: 2px solid #FF9933; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+      ERROR: {{ errorMensaje }}
     </div>
 
+    <div *ngIf="!currentUser" style="text-align: center; padding: 40px; color: #666;">
+      <p>Cargando perfil...</p>
+    </div>
+
+    <div *ngIf="currentUser && !modoEdicion" style="display: grid; grid-template-columns: 150px 1fr; gap: 30px;">
+      <div style="text-align: center;">
+        <div *ngIf="currentUser.photo" style="width: 150px; height: 150px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 4px solid #FF9933;">
+          <img [src]="currentUser.photo" alt="Foto" style="width: 100%; height: 100%; object-fit: cover;" />
+        </div>
+        <div *ngIf="!currentUser.photo" style="width: 150px; height: 150px; margin: 0 auto; border-radius: 12px; border: 4px solid #ddd; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999;">
+          Sin foto
+        </div>
+      </div>
+
+      <div>
+        <h3 style="margin: 0 0 5px 0; color: #333; font-size: 1.5em;">{{ currentUser.name }}</h3>
+        <p style="margin: 0 0 5px 0; color: #666;"><strong>{{ currentUser.role }}</strong> | {{ currentUser.email }}</p>
+        <p style="margin: 0 0 15px 0; font-size: 0.9em;">
+          <span *ngIf="currentUser.email_verified" style="color: #28a745; font-weight: bold;">✓ Email Verificado</span>
+          <span *ngIf="!currentUser.email_verified" style="color: #dc3545; font-weight: bold;">✗ Email no verificado</span>
+        </p>
+        <button *ngIf="!currentUser.email_verified" type="button" (click)="verificarEmail()" style="margin-bottom: 15px; padding: 8px 16px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
+          Verificar Email
+        </button>
+        
+        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #FF9933; margin-bottom: 15px;">
+          <strong style="color: #FF9933;">Biografía</strong>
+          <p style="margin: 8px 0 0 0; color: #666;">{{ currentUser.bio || 'Sin biografía' }}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div style="background: white; padding: 12px; border-radius: 8px;">
+            <strong style="color: #FF9933; font-size: 0.9em;">Estudios</strong>
+            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.studies || '-' }}</p>
+          </div>
+          <div style="background: white; padding: 12px; border-radius: 8px;">
+            <strong style="color: #FF9933; font-size: 0.9em;">Experiencia</strong>
+            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.experience || '-' }}</p>
+          </div>
+          <div style="background: white; padding: 12px; border-radius: 8px;">
+            <strong style="color: #FF9933; font-size: 0.9em;">Horario</strong>
+            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.schedule || '-' }}</p>
+          </div>
+          <div style="background: white; padding: 12px; border-radius: 8px;">
+
+
+            <strong style="color: #FF9933; font-size: 0.9em;">Tarifa por hora</strong>
+            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.tarifa_por_hora || '-' }} €/h</p>
+          </div>
+          <div style="background: white; padding: 12px; border-radius: 8px;">
+            <strong style="color: #FF9933; font-size: 0.9em;">Tarifa mínima</strong>
+            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.tarifa_minima || '-' }} €</p>
+          </div>
+        </div>
+
+        <button type="button" (click)="entrarEnEdicion()" style="padding: 12px 24px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+          Editar Perfil
+        </button>
+      </div>
+    </div>
+
+    <!-- Modo Edición -->
+    <div *ngIf="currentUser && modoEdicion">
+      <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #FF9933;">
+        <h3 style="color: #FF9933; margin-top: 0;">Editando tu Perfil</h3>
+        
+        <div style="margin-bottom: 20px; text-align: center;">
+          <div *ngIf="previewFoto || currentUser.photo" style="width: 120px; height: 120px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 3px solid #FF9933;">
+            <img [src]="previewFoto || currentUser.photo" style="width: 100%; height: 100%; object-fit: cover;" />
+          </div>
+          <label style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #FF9933; color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">
+            Cambiar Foto
+            <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" style="display: none;" />
+          </label>
+        </div>
+
+        <div style="display: grid; gap: 15px;">
+          <div>
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Biografía</label>
+            <textarea [(ngModel)]="currentUser.bio" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"></textarea>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Estudios</label>
+            <textarea [(ngModel)]="currentUser.studies" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"></textarea>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Experiencia</label>
+            <textarea [(ngModel)]="currentUser.experience" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"></textarea>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Horario</label>
+            <input type="text" [(ngModel)]="currentUser.schedule" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" />
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Tarifa por hora (€)</label>
+            <input type="number" [(ngModel)]="currentUser.tarifa_por_hora" step="0.01" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" />
+          </div>
+          <div>
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Tarifa mínima (€)</label>
+            <input type="number" [(ngModel)]="currentUser.tarifa_minima" step="0.01" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" />
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button type="button" (click)="saveProfile()" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+              Guardar
+            </button>
+            <button type="button" (click)="cancelarEdicion()" style="flex: 1; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección Buscador -->
+  <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 2px solid #FF9933;">
+    <h2 style="color: #FF9933; margin-top: 0; border-bottom: 3px solid #FF9933; padding-bottom: 10px;">Buscador</h2>
+    <app-busqueda (resultados)="onBusquedaResultados($event)"></app-busqueda>
+  </div>
+
+  <!-- Sección Profesionales -->
+  <div style="background: white; padding: 20px; border-radius: 12px;">
+    <h2 style="color: #FF9933; margin-top: 0; border-bottom: 3px solid #FF9933; padding-bottom: 10px;">Profesionales Disponibles</h2>
+
+    <div *ngIf="listaUsuarios.length === 0" style="text-align: center; padding: 40px; color: #666; background: #f5f5f5; border-radius: 8px;">
+      <p>{{ estadoMensaje }}</p>
+    </div>
+
+    <div *ngIf="listaUsuarios.length > 0" style="display: grid; gap: 20px;">
+      <div *ngFor="let user of listaUsuarios" style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; display: grid; grid-template-columns: 100px 1fr; gap: 20px; background: #fafafa;">
+        
+        <div style="text-align: center;">
+          <div *ngIf="user.photo" style="width: 100px; height: 100px; border-radius: 10px; overflow: hidden; border: 3px solid #FF9933;">
+            <img [src]="user.photo" style="width: 100%; height: 100%; object-fit: cover;" />
+          </div>
+          <div *ngIf="!user.photo" style="width: 100px; height: 100px; border-radius: 10px; border: 3px solid #ddd; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8em;">
+            Sin foto
+          </div>
+        </div>
+
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+            <div>
+              <h4 style="margin: 0; color: #333;">{{ user.name }}</h4>
+              <p style="margin: 2px 0; color: #666; font-size: 0.9em;">{{ user.role }}</p>
+            </div>
+            <button type="button" (click)="openChat(user)" style="padding: 8px 16px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">
+              Chat
+            </button>
+          </div>
+
+          <p *ngIf="user.bio" style="margin: 10px 0; color: #555; font-size: 0.9em;">{{ user.bio }}</p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85em;">
+            <p *ngIf="user.studies" style="margin: 0; color: #666;"><strong>Estudios:</strong> {{ user.studies }}</p>
+            <p *ngIf="user.experience" style="margin: 0; color: #666;"><strong>Experiencia:</strong> {{ user.experience }}</p>
+            <p *ngIf="user.schedule" style="margin: 0; color: #666;"><strong>Horario:</strong> {{ user.schedule }}</p>
+            <p *ngIf="user.tarifa_por_hora" style="margin: 0; color: #666;"><strong>Tarifa/h:</strong> {{ user.tarifa_por_hora }}€</p>
+            <p *ngIf="user.tarifa_minima" style="margin: 0; color: #666;"><strong>Mín:</strong> {{ user.tarifa_minima }}€</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat -->
+  <div *ngIf="selectedChatUser" style="margin-top: 30px; border: 2px solid #FF9933; border-radius: 12px; padding: 20px; background: #fffbf0;">
+    <h3 style="color: #FF9933; margin-top: 0;">Chat con {{ selectedChatUser.name }}</h3>
+    
+    <div style="max-height: 300px; overflow-y: auto; background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+      <div *ngFor="let message of chatMessages" 
+           [style.justify-self]="message.sender_id === currentUser.id ? 'end' : 'start'"
+           [style.background]="message.sender_id === currentUser.id ? '#FF9933' : '#e9ecef'"
+           [style.color]="message.sender_id === currentUser.id ? 'white' : '#333'"
+           style="padding: 10px; border-radius: 8px; margin-bottom: 10px; max-width: 70%; word-wrap: break-word;">
+        <p style="margin: 0 0 3px 0; font-weight: 600; font-size: 0.9em;">
+          {{ message.sender_id === currentUser.id ? 'Tú' : selectedChatUser.name }}
+        </p>
+        <p style="margin: 0;">{{ message.message }}</p>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+      <input type="text" [(ngModel)]="chatText" (keyup.enter)="sendMessage()" placeholder="Escribe un mensaje..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;" />
+      <button type="button" (click)="sendMessage()" style="padding: 10px 20px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+        Enviar
+      </button>
+    </div>
   </div>
 </div>

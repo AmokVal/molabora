@@ -1,0 +1,179 @@
+// Variables
+$primary: #007bff;
+$secondary: #6c757d;
+$success: #28a745;
+$danger: #dc3545;
+$warning: #ffc107;
+$light: #f8f9fa;
+$dark: #343a40;
+$white: #ffffff;
+$border-color: #dee2e6;
+$font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+$border-radius: 8px;
+$box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+$box-shadow-lg: 0 4px 15px rgba(0, 123, 255, 0.1);
+
+// ========== ESTILOS PRINCIPALES ==========
+div[style*="padding: 20px"] {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  min-height: 100vh;
+  
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $dark;
+    text-align: center;
+    margin-bottom: 2rem;
+    letter-spacing: -0.5px;
+  }
+}
+
+// ========== PERFIL LECTURA ==========
+div[style*="border: 3px solid #007bff"] {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e9ecef 100%) !important;
+  border: 3px solid $primary !important;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow-lg;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.15);
+  }
+  
+  h2 {
+    font-weight: 700;
+    color: $dark;
+  }
+}
+
+// ========== MODO EDICIÓN ==========
+div[style*="border: 3px solid #ffc107"] {
+  background: linear-gradient(135deg, #fffbf0 0%, #fff3cd 100%) !important;
+  border: 3px solid $warning !important;
+  border-radius: $border-radius;
+  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.15);
+}
+
+// ========== BOTONES ==========
+button {
+  font-weight: 600;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0.75rem 1.5rem;
+  
+  &[style*="background: #007bff"] {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+    color: $white;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &[style*="background: #28a745"] {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%) !important;
+    color: $white;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &[style*="background: #dc3545"] {
+    background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%) !important;
+    color: $white;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &[style*="background: #ffc107"] {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+    color: $dark;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// ========== INPUTS ==========
+input[type="text"],
+input[type="email"],
+textarea {
+  font-family: $font-family;
+  padding: 0.75rem;
+  border: 1px solid $border-color;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+  
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  }
+}
+
+// ========== TARJETAS ==========
+div[style*="border: 1px solid #ddd"] {
+  border-radius: $border-radius !important;
+  box-shadow: $box-shadow;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// ========== USUARIOS LISTA ==========
+div[style*="display: grid; gap: 18px"] > div[style*="border: 1px"] {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+  }
+}
+
+// ========== CHAT ==========
+div[style*="border: 2px solid #28a745"] {
+  border-radius: $border-radius !important;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.1);
+}
+
+// ========== ANIMACIONES ==========
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+div[style*="padding: 12px 14px; border-radius: 12px"] {
+  animation: slideIn 0.3s ease;
+}
+
+// ========== RESPONSIVE ==========
+@media (max-width: 768px) {
+  div[style*="grid-template-columns: 1fr 2fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  div[style*="display: flex; gap"] {
+    flex-direction: column;
+  }
+}
+

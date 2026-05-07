@@ -1,0 +1,9 @@
+configId: default
+models:
+  - name: "NanoGPT Sonnet"
+    provider: "openai"
+    model: "anthropic/claude-3.5-sonnet"
+    apiKey: "sk-nano-7426e1bf-2945-4e54-a583-a9d06ae61798"
+    apiBase: "https://nano-gpt.com/api/v1"
+contextProviders: []
+slashCommands: []
