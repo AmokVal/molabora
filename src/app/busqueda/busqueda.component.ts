@@ -55,6 +55,7 @@ export class BusquedaComponent implements OnInit {
   }
 
   limpiarFiltros(): void {
+    console.log('Limpiando filtros...');
     this.nombre = '';
     this.especializacion = '';
     this.presupuestoMin = '';
@@ -62,5 +63,6 @@ export class BusquedaComponent implements OnInit {
     this.ordenar = 'relevancia';
     console.log('Filtros limpiados');
     this.buscar();
+    console.log('Búsqueda ejecutada después de limpiar');
   }
 }
