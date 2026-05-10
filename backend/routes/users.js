@@ -48,43 +48,69 @@ router.get('/', verifyToken, async (req, res) => {
 router.get('/search', verifyToken, async (req, res) => {
   try {
     const { nombre, especializacion, presupuestoMin, presupuestoMax, ordenar } = req.query;
+    
+    console.log('=== BÚSQUEDA INICIADA ===');
+    console.log('Parámetros recibidos:', { nombre, especializacion, presupuestoMin, presupuestoMax, ordenar });
+    
     let query = 'SELECT id, name, role, studies, experience, schedule, rates, bio, photo, is_premium FROM users WHERE is_banned = false';
     const params = [];
     let paramCount = 1;
 
-    if (nombre) {
-      query += ` AND (LOWER(name) LIKE LOWER($${paramCount}) OR LOWER(studies) LIKE LOWER($${paramCount}) OR LOWER(bio) LIKE LOWER($${paramCount}))`;
-      params.push(`%${nombre}%`);
-      paramCount++;
+    // Filtro por nombre
+    if (nombre && nombre.trim()) {
+      query += ` AND (LOWER(name) LIKE LOWER($${paramCount}) OR LOWER(studies) LIKE LOWER($${paramCount + 1}) OR LOWER(bio) LIKE LOWER($${paramCount + 2}))`;
+      params.push(`%${nombre}%`, `%${nombre}%`, `%${nombre}%`);
+      paramCount += 3;
+      console.log('✓ Filtro por nombre:', nombre);
     }
 
-    if (especializacion) {
-      query += ` AND (LOWER(studies) LIKE LOWER($${paramCount}) OR LOWER(experience) LIKE LOWER($${paramCount}) OR LOWER(bio) LIKE LOWER($${paramCount}))`;
-      params.push(`%${especializacion}%`);
-      paramCount++;
+    // Filtro por especialización
+    if (especializacion && especializacion.trim()) {
+      query += ` AND (LOWER(studies) LIKE LOWER($${paramCount}) OR LOWER(experience) LIKE LOWER($${paramCount + 1}) OR LOWER(bio) LIKE LOWER($${paramCount + 2}))`;
+      params.push(`%${especializacion}%`, `%${especializacion}%`, `%${especializacion}%`);
+      paramCount += 3;
+      console.log('✓ Filtro por especialización:', especializacion);
     }
 
-    if (presupuestoMin) {
-      query += ` AND CAST(rates AS FLOAT) >= $${paramCount}`;
-      params.push(parseFloat(presupuestoMin));
+    // Filtrar usuarios que tienen rates válido (no vacío)
+    query += ` AND rates IS NOT NULL AND rates != ''`;
+
+    // Presupuesto mínimo (por defecto 1€)
+    const minValue = presupuestoMin ? parseFloat(presupuestoMin) : 1;
+    if (!isNaN(minValue)) {
+      query += ` AND (rates::numeric >= $${paramCount})`;
+      params.push(minValue);
       paramCount++;
+      console.log('✓ Presupuesto mínimo:', minValue, '€');
     }
 
-    if (presupuestoMax) {
-      query += ` AND CAST(rates AS FLOAT) <= $${paramCount}`;
-      params.push(parseFloat(presupuestoMax));
-      paramCount++;
+    // Presupuesto máximo
+    if (presupuestoMax && presupuestoMax !== '') {
+      const maxValue = parseFloat(presupuestoMax);
+      if (!isNaN(maxValue)) {
+        query += ` AND (rates::numeric <= $${paramCount})`;
+        params.push(maxValue);
+        paramCount++;
+        console.log('✓ Presupuesto máximo:', maxValue, '€');
+      }
     }
 
+    // Ordenamiento
     if (ordenar === 'precio_bajo') {
-      query += ' ORDER BY CAST(rates AS FLOAT) ASC, is_premium DESC';
+      query += ' ORDER BY rates::numeric ASC NULLS LAST, is_premium DESC';
     } else if (ordenar === 'precio_alto') {
-      query += ' ORDER BY CAST(rates AS FLOAT) DESC, is_premium DESC';
+      query += ' ORDER BY rates::numeric DESC NULLS LAST, is_premium DESC';
     } else {
       query += ' ORDER BY is_premium DESC, name ASC';
     }
 
+    console.log('Query SQL:', query);
+    console.log('Parámetros:', params);
+
     const result = await pool.query(query, params);
+
+    console.log(`✓ Búsqueda completada: ${result.rows.length} usuarios`);
+    console.log('=== FIN BÚSQUEDA ===\n');
 
     const users = result.rows.map(user => {
       if (user.photo) {
@@ -96,7 +122,7 @@ router.get('/search', verifyToken, async (req, res) => {
     res.json(users);
   } catch (err) {
     console.error('Error en búsqueda:', err);
-    res.status(500).json({ error: 'Error al buscar usuarios' });
+    res.status(500).json({ error: 'Error al buscar usuarios: ' + err.message });
   }
 });
 
