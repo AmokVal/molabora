@@ -30,16 +30,22 @@ export class BusquedaComponent implements OnInit {
   }
 
   buscar(): void {
+    // Si no hay presupuesto mínimo, asumir 1€
+    const presupuestoMinimo = this.presupuestoMin && this.presupuestoMin !== '' ? this.presupuestoMin : '1';
+    
     const filtro = {
       nombre: this.nombre,
       especializacion: this.especializacion,
-      presupuestoMin: this.presupuestoMin,
+      presupuestoMin: presupuestoMinimo,
       presupuestoMax: this.presupuestoMax,
       ordenar: this.ordenar
     };
 
+    console.log('Aplicando filtro:', filtro);
+
     this.usuarioService.buscarUsuarios(filtro).subscribe({
       next: (usuarios: any[]) => {
+        console.log('Resultados recibidos:', usuarios.length, 'usuarios');
         this.resultados.emit(usuarios);
       },
       error: (err: any) => {
@@ -54,6 +60,7 @@ export class BusquedaComponent implements OnInit {
     this.presupuestoMin = '';
     this.presupuestoMax = '';
     this.ordenar = 'relevancia';
+    console.log('Filtros limpiados');
     this.buscar();
   }
 }
