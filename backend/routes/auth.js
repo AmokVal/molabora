@@ -169,17 +169,28 @@ router.put('/me', verifyToken, async (req, res) => {
   const { studies, experience, schedule, rates, bio, photo } = req.body;
 
   try {
-    // Convertir foto base64 a Buffer si existe
+    // Convertir foto base64 a Buffer si existe y no es muy grande
     let photoBuffer = null;
-    if (photo) {
-      const base64Data = photo.replace(/^data:image\/\w+;base64,/, '');
-      photoBuffer = Buffer.from(base64Data, 'base64');
+    if (photo && photo.length < 5000000) { // Máximo 5MB
+      try {
+        const base64Data = photo.replace(/^data:image\/\w+;base64,/, '');
+        photoBuffer = Buffer.from(base64Data, 'base64');
+      } catch (err) {
+        console.warn('Error procesando foto:', err.message);
+      }
     }
 
-    const result = await pool.query(
-      'UPDATE users SET studies = $1, experience = $2, schedule = $3, rates = $4, bio = $5, photo = COALESCE($6::bytea, photo) WHERE id = $7 RETURNING id, name, email, role, studies, experience, schedule, rates, bio, photo, email_verified, is_premium',
-      [studies || '', experience || '', schedule || '', rates || '', bio || '', photoBuffer, req.user.id]
-    );
+    // Construir query dinámicamente para actualizar solo la foto si es válida
+    let query, params;
+    if (photoBuffer) {
+      query = 'UPDATE users SET studies = $1, experience = $2, schedule = $3, rates = $4, bio = $5, photo = $6 WHERE id = $7 RETURNING id, name, email, role, studies, experience, schedule, rates, bio, photo, email_verified, is_premium';
+      params = [studies || '', experience || '', schedule || '', rates || '', bio || '', photoBuffer, req.user.id];
+    } else {
+      query = 'UPDATE users SET studies = $1, experience = $2, schedule = $3, rates = $4, bio = $5 WHERE id = $6 RETURNING id, name, email, role, studies, experience, schedule, rates, bio, photo, email_verified, is_premium';
+      params = [studies || '', experience || '', schedule || '', rates || '', bio || '', req.user.id];
+    }
+
+    const result = await pool.query(query, params);
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -195,7 +206,7 @@ router.put('/me', verifyToken, async (req, res) => {
     res.json(user);
   } catch (err) {
     console.error('Error al actualizar perfil:', err);
-    res.status(500).json({ error: 'Error al actualizar perfil' });
+    res.status(500).json({ error: 'Error al actualizar perfil: ' + err.message });
   }
 });
 
