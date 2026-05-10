@@ -49,16 +49,35 @@ export class UsuarioService {
   }
 
     buscarUsuarios(filtro: any): Observable<any[]> {
-    const token = localStorage.getItem('token');
-    const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    let params = '';
-    if (filtro.nombre) params += `&nombre=${filtro.nombre}`;
-    if (filtro.especializacion) params += `&especializacion=${filtro.especializacion}`;
-    if (filtro.presupuestoMin) params += `&presupuestoMin=${filtro.presupuestoMin}`;
-    if (filtro.presupuestoMax) params += `&presupuestoMax=${filtro.presupuestoMax}`;
-    if (filtro.ordenar) params += `&ordenar=${filtro.ordenar}`;
-    return this.http.get<any[]>(`${this.apiUrl}/users/search?${params}`, { headers: cabeceras });
-  }
+      const token = localStorage.getItem('token');
+      const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    
+      let params = '?';
+      const queryParams = [];
+    
+      if (filtro.nombre && filtro.nombre.trim()) {
+        queryParams.push(`nombre=${encodeURIComponent(filtro.nombre)}`);
+      }
+      if (filtro.especializacion && filtro.especializacion.trim()) {
+        queryParams.push(`especializacion=${encodeURIComponent(filtro.especializacion)}`);
+      }
+      if (filtro.presupuestoMin && filtro.presupuestoMin !== '') {
+        queryParams.push(`presupuestoMin=${filtro.presupuestoMin}`);
+      }
+      if (filtro.presupuestoMax && filtro.presupuestoMax !== '') {
+        queryParams.push(`presupuestoMax=${filtro.presupuestoMax}`);
+      }
+      if (filtro.ordenar) {
+        queryParams.push(`ordenar=${filtro.ordenar}`);
+      }
+    
+      params += queryParams.join('&');
+      const url = `${this.apiUrl}/users/search${params}`;
+      console.log('Búsqueda URL:', url);
+      console.log('Filtro enviado:', filtro);
+    
+      return this.http.get<any[]>(url, { headers: cabeceras });
+    }
 
   crearSesionPago(): Observable<any> {
     const token = localStorage.getItem('token');
