@@ -95,8 +95,7 @@ export class HomeComponent implements OnInit {
       studies: this.currentUser.studies,
       experience: this.currentUser.experience,
       schedule: this.currentUser.schedule,
-      tarifa_por_hora: this.currentUser.tarifa_por_hora || 0,
-      tarifa_minima: this.currentUser.tarifa_minima || 0,
+      rates: this.currentUser.rates || '',
       bio: this.currentUser.bio || ''
     };
 
@@ -113,7 +112,8 @@ export class HomeComponent implements OnInit {
         this.cdr.detectChanges();
         alert('Perfil actualizado correctamente');
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al actualizar perfil:', err);
         this.cdr.detectChanges();
         alert('Error al actualizar el perfil. Intenta nuevamente.');
       }

@@ -74,15 +74,9 @@
             <strong style="color: #FF9933; font-size: 0.9em;">Horario</strong>
             <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.schedule || '-' }}</p>
           </div>
-          <div style="background: white; padding: 12px; border-radius: 8px;">
-
-
-            <strong style="color: #FF9933; font-size: 0.9em;">Tarifa por hora</strong>
-            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.tarifa_por_hora || '-' }} €/h</p>
-          </div>
-          <div style="background: white; padding: 12px; border-radius: 8px;">
-            <strong style="color: #FF9933; font-size: 0.9em;">Tarifa mínima</strong>
-            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.tarifa_minima || '-' }} €</p>
+                    <div style="background: white; padding: 12px; border-radius: 8px;">
+            <strong style="color: #FF9933; font-size: 0.9em;">Tarifas</strong>
+            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.rates || '-' }}</p>
           </div>
         </div>
 
@@ -125,12 +119,8 @@
             <input type="text" [(ngModel)]="currentUser.schedule" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" />
           </div>
           <div>
-            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Tarifa por hora (€)</label>
-            <input type="number" [(ngModel)]="currentUser.tarifa_por_hora" step="0.01" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" />
-          </div>
-          <div>
-            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Tarifa mínima (€)</label>
-            <input type="number" [(ngModel)]="currentUser.tarifa_minima" step="0.01" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" />
+            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Tarifas</label>
+            <textarea [(ngModel)]="currentUser.rates" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" placeholder="Ejemplo: 20€/hora, mínimo 50€"></textarea>
           </div>
 
           <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -189,8 +179,7 @@
             <p *ngIf="user.studies" style="margin: 0; color: #666;"><strong>Estudios:</strong> {{ user.studies }}</p>
             <p *ngIf="user.experience" style="margin: 0; color: #666;"><strong>Experiencia:</strong> {{ user.experience }}</p>
             <p *ngIf="user.schedule" style="margin: 0; color: #666;"><strong>Horario:</strong> {{ user.schedule }}</p>
-            <p *ngIf="user.tarifa_por_hora" style="margin: 0; color: #666;"><strong>Tarifa/h:</strong> {{ user.tarifa_por_hora }}€</p>
-            <p *ngIf="user.tarifa_minima" style="margin: 0; color: #666;"><strong>Mín:</strong> {{ user.tarifa_minima }}€</p>
+            <p *ngIf="user.rates" style="margin: 0; color: #666;"><strong>Tarifas:</strong> {{ user.rates }}</p>
           </div>
         </div>
       </div>

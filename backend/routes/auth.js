@@ -114,26 +114,10 @@ router.post('/login', async (req, res) => {
 router.get('/me', verifyToken, async (req, res) => {
   console.log('GET /me called, user id:', req.user.id);
   try {
-    let result;
-    
-    // Intentamos la consulta completa
-    try {
-      console.log('Intentando consultar con columnas bio y photo...');
-            result = await pool.query(
-        'SELECT id, name, email, role, studies, experience, schedule, tarifa_por_hora, tarifa_minima, bio, photo, email_verified FROM users WHERE id = $1',
-        [req.user.id]
-      );
-      console.log('✓ Consulta exitosa con bio y photo');
-    } catch (err) {
-      console.log('⚠ Error en consulta con bio/photo:', err.message);
-      console.log('Intentando consulta sin bio y photo...');
-      // Si falla, intentamos sin las columnas nuevas
-      result = await pool.query(
-        'SELECT id, name, email, role, studies, experience, schedule, rates FROM users WHERE id = $1',
-        [req.user.id]
-      );
-      console.log('✓ Consulta exitosa sin bio y photo');
-    }
+    const result = await pool.query(
+      'SELECT id, name, email, role, studies, experience, schedule, rates, bio, photo, email_verified, is_premium FROM users WHERE id = $1',
+      [req.user.id]
+    );
 
     if (result.rows.length === 0) {
       console.log('ERROR: Usuario no encontrado con id:', req.user.id);
@@ -182,7 +166,7 @@ router.post('/verify-email-manual', verifyToken, async (req, res) => {
 });
 
 router.put('/me', verifyToken, async (req, res) => {
-  const { studies, experience, schedule, tarifa_por_hora, tarifa_minima, bio, photo } = req.body;
+  const { studies, experience, schedule, rates, bio, photo } = req.body;
 
   try {
     // Convertir foto base64 a Buffer si existe
@@ -192,11 +176,9 @@ router.put('/me', verifyToken, async (req, res) => {
       photoBuffer = Buffer.from(base64Data, 'base64');
     }
 
-        let result;
-    
-    result = await pool.query(
-      'UPDATE users SET studies = $1, experience = $2, schedule = $3, tarifa_por_hora = $4, tarifa_minima = $5, bio = $6, photo = COALESCE($7::bytea, photo) WHERE id = $8 RETURNING id, name, email, role, studies, experience, schedule, tarifa_por_hora, tarifa_minima, bio, photo',
-      [studies || '', experience || '', schedule || '', tarifa_por_hora || 0, tarifa_minima || 0, bio || '', photoBuffer, req.user.id]
+    const result = await pool.query(
+      'UPDATE users SET studies = $1, experience = $2, schedule = $3, rates = $4, bio = $5, photo = COALESCE($6::bytea, photo) WHERE id = $7 RETURNING id, name, email, role, studies, experience, schedule, rates, bio, photo, email_verified, is_premium',
+      [studies || '', experience || '', schedule || '', rates || '', bio || '', photoBuffer, req.user.id]
     );
 
     if (result.rows.length === 0) {
