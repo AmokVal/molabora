@@ -26,7 +26,7 @@ router.get('/', verifyToken, async (req, res) => {
   console.log('GET /users called, current user id:', req.user.id);
   try {
     const result = await pool.query(
-      'SELECT id, name, role, studies, experience, schedule, tarifa_por_hora, tarifa_minima, bio, photo FROM users WHERE is_banned = false AND id != $1 ORDER BY name ASC',
+      'SELECT id, name, role, studies, experience, schedule, rates, bio, photo, is_premium FROM users WHERE is_banned = false AND id != $1 ORDER BY is_premium DESC, name ASC',
       [req.user.id]
     );
     
@@ -47,8 +47,8 @@ router.get('/', verifyToken, async (req, res) => {
 
 router.get('/search', verifyToken, async (req, res) => {
   try {
-    const { nombre, especializacion, precioMin, precioMax, ordenar } = req.query;
-    let query = 'SELECT id, name, role, studies, experience, schedule, tarifa_por_hora, tarifa_minima, bio, photo FROM users WHERE is_banned = false';
+    const { nombre, especializacion, presupuestoMin, presupuestoMax, ordenar } = req.query;
+    let query = 'SELECT id, name, role, studies, experience, schedule, rates, bio, photo, is_premium FROM users WHERE is_banned = false';
     const params = [];
     let paramCount = 1;
 
@@ -64,24 +64,24 @@ router.get('/search', verifyToken, async (req, res) => {
       paramCount++;
     }
 
-    if (precioMin) {
-      query += ` AND tarifa_por_hora >= $${paramCount}`;
-      params.push(parseFloat(precioMin));
+    if (presupuestoMin) {
+      query += ` AND CAST(rates AS FLOAT) >= $${paramCount}`;
+      params.push(parseFloat(presupuestoMin));
       paramCount++;
     }
 
-    if (precioMax) {
-      query += ` AND tarifa_por_hora <= $${paramCount}`;
-      params.push(parseFloat(precioMax));
+    if (presupuestoMax) {
+      query += ` AND CAST(rates AS FLOAT) <= $${paramCount}`;
+      params.push(parseFloat(presupuestoMax));
       paramCount++;
     }
 
     if (ordenar === 'precio_bajo') {
-      query += ' ORDER BY tarifa_por_hora ASC';
+      query += ' ORDER BY CAST(rates AS FLOAT) ASC, is_premium DESC';
     } else if (ordenar === 'precio_alto') {
-      query += ' ORDER BY tarifa_por_hora DESC';
+      query += ' ORDER BY CAST(rates AS FLOAT) DESC, is_premium DESC';
     } else {
-      query += ' ORDER BY name ASC';
+      query += ' ORDER BY is_premium DESC, name ASC';
     }
 
     const result = await pool.query(query, params);
@@ -106,7 +106,7 @@ router.get('/all', verifyToken, async (req, res) => {
   }
 
   const result = await pool.query(
-    'SELECT id, name, email, role, studies, experience, schedule, tarifa_por_hora, tarifa_minima FROM users'
+    'SELECT id, name, email, role, studies, experience, schedule, rates FROM users'
   );
   res.json(result.rows);
 });

@@ -48,14 +48,14 @@ export class UsuarioService {
     return this.http.post(`${this.apiUrl}/chat/${otherUserId}`, { message }, { headers: cabeceras });
   }
 
-  buscarUsuarios(filtro: any): Observable<any[]> {
+    buscarUsuarios(filtro: any): Observable<any[]> {
     const token = localStorage.getItem('token');
     const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     let params = '';
     if (filtro.nombre) params += `&nombre=${filtro.nombre}`;
     if (filtro.especializacion) params += `&especializacion=${filtro.especializacion}`;
-    if (filtro.precioMin) params += `&precioMin=${filtro.precioMin}`;
-    if (filtro.precioMax) params += `&precioMax=${filtro.precioMax}`;
+    if (filtro.presupuestoMin) params += `&presupuestoMin=${filtro.presupuestoMin}`;
+    if (filtro.presupuestoMax) params += `&presupuestoMax=${filtro.presupuestoMax}`;
     if (filtro.ordenar) params += `&ordenar=${filtro.ordenar}`;
     return this.http.get<any[]>(`${this.apiUrl}/users/search?${params}`, { headers: cabeceras });
   }

@@ -57,28 +57,30 @@
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-      <!-- Precio Mínimo -->
+      <!-- Presupuesto Mínimo -->
       <div>
         <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">
-          Precio Mínimo (€)
+          Presupuesto Mínimo (€)
         </label>
         <input 
           type="number" 
-          [(ngModel)]="precioMin"
+          [(ngModel)]="presupuestoMin"
           placeholder="0"
+          min="0"
           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
         />
       </div>
 
-      <!-- Precio Máximo -->
+      <!-- Presupuesto Máximo -->
       <div>
         <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">
-          Precio Máximo (€)
+          Presupuesto Máximo (€)
         </label>
         <input 
           type="number" 
-          [(ngModel)]="precioMax"
+          [(ngModel)]="presupuestoMax"
           placeholder="1000"
+          min="0"
           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"
         />
       </div>

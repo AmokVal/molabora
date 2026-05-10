@@ -47,16 +47,15 @@ export class HomeComponent implements OnInit {
       next: (perfil) => {
         console.log('Perfil recibido:', perfil);
         this.currentUser = perfil;
-        this.cdr.detectChanges();
-        this.estadoMensaje = 'Cargando usuarios disponibles...';
 
         this.usuarioService.obtenerUsuarios().subscribe({
           next: (datosRecibidos) => {
             console.log('Usuarios recibidos:', datosRecibidos);
             this.listaUsuarios = datosRecibidos.filter((user: any) => user.id !== perfil.id);
-            this.cdr.detectChanges();
             if (this.listaUsuarios.length === 0) {
               this.estadoMensaje = 'No hay usuarios disponibles en este momento.';
+            } else {
+              this.estadoMensaje = '';
             }
             console.log('Lista de usuarios filtrada:', this.listaUsuarios.length);
           },
@@ -64,7 +63,6 @@ export class HomeComponent implements OnInit {
             console.error('Error obteniendo usuarios:', err);
             this.errorMensaje = 'Error al cargar usuarios: ' + (err.error?.error || err.message);
             this.estadoMensaje = 'No se pudo cargar la lista de usuarios.';
-            this.cdr.detectChanges();
           }
         });
       },
@@ -72,7 +70,6 @@ export class HomeComponent implements OnInit {
         console.error('Error obteniendo perfil:', err);
         this.errorMensaje = 'Error al cargar perfil: ' + (err.error?.error || err.message);
         this.estadoMensaje = 'No se pudo cargar el perfil actual.';
-        this.cdr.detectChanges();
       }
     });
   }
@@ -80,11 +77,15 @@ export class HomeComponent implements OnInit {
   onFotoSeleccionada(event: any) {
     const file = event.target.files[0];
     if (file) {
+      // Validar tamaño (máximo 2MB)
+      if (file.size > 2000000) {
+        alert('La foto es demasiado grande. Máximo 2MB.');
+        return;
+      }
       this.fotoSeleccionada = file;
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.previewFoto = e.target.result;
-        this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
     }
@@ -92,14 +93,15 @@ export class HomeComponent implements OnInit {
 
   saveProfile() {
     const perfilActualizado = {
-      studies: this.currentUser.studies,
-      experience: this.currentUser.experience,
-      schedule: this.currentUser.schedule,
+      studies: this.currentUser.studies || '',
+      experience: this.currentUser.experience || '',
+      schedule: this.currentUser.schedule || '',
       rates: this.currentUser.rates || '',
       bio: this.currentUser.bio || ''
     };
 
-    if (this.previewFoto) {
+    // Solo enviar foto si se cambió y no es demasiado grande
+    if (this.previewFoto && this.previewFoto.length < 2000000) {
       (perfilActualizado as any).photo = this.previewFoto;
     }
 
@@ -109,12 +111,10 @@ export class HomeComponent implements OnInit {
         this.modoEdicion = false;
         this.fotoSeleccionada = null;
         this.previewFoto = null;
-        this.cdr.detectChanges();
         alert('Perfil actualizado correctamente');
       },
       error: (err) => {
         console.error('Error al actualizar perfil:', err);
-        this.cdr.detectChanges();
         alert('Error al actualizar el perfil. Intenta nuevamente.');
       }
     });

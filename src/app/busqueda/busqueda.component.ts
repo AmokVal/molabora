@@ -15,8 +15,8 @@ export class BusquedaComponent implements OnInit {
 
   nombre: string = '';
   especializacion: string = '';
-  precioMin: string = '';
-  precioMax: string = '';
+  presupuestoMin: string = '';
+  presupuestoMax: string = '';
   ordenar: string = 'relevancia';
   mostrarFiltros: boolean = false;
 
@@ -33,15 +33,14 @@ export class BusquedaComponent implements OnInit {
     const filtro = {
       nombre: this.nombre,
       especializacion: this.especializacion,
-      precioMin: this.precioMin,
-      precioMax: this.precioMax,
+      presupuestoMin: this.presupuestoMin,
+      presupuestoMax: this.presupuestoMax,
       ordenar: this.ordenar
     };
 
     this.usuarioService.buscarUsuarios(filtro).subscribe({
       next: (usuarios: any[]) => {
         this.resultados.emit(usuarios);
-        this.cdr.detectChanges();
       },
       error: (err: any) => {
         console.error('Error en búsqueda:', err);
@@ -52,7 +51,8 @@ export class BusquedaComponent implements OnInit {
   limpiarFiltros(): void {
     this.nombre = '';
     this.especializacion = '';
-    this.precioMin = '';
+    this.presupuestoMin = '';
+    this.presupuestoMax = '';
     this.ordenar = 'relevancia';
     this.buscar();
   }
