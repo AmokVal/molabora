@@ -1,31 +1,116 @@
-.login {
-  max-width: 350px;
-  margin: 60px auto;
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #4A3B6B 0%, #2d2340 100%);
   padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-family: Arial, sans-serif;
-  text-align: center;
 }
 
-.campo {
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-input {
+.login-card {
+  background: white;
+  border-radius: 16px;
+  padding: 44px 40px;
   width: 100%;
-  padding: 10px;
-  margin-top: 5px;
+  max-width: 420px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+}
+
+/* Logo */
+.login-logo {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  letter-spacing: -1px;
+}
+.logo-m       { color: #333; }
+.logo-o       { color: #FF9933; }
+.logo-labora  { color: #333; }
+
+.login-subtitulo {
+  text-align: center;
+  color: #888;
+  margin: 0 0 28px 0;
+  font-size: 0.95rem;
+}
+
+/* Campos */
+.campo {
+  margin-bottom: 18px;
+}
+
+.campo label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.campo input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
   box-sizing: border-box;
 }
 
-button {
+.campo input:focus {
+  border-color: #FF9933;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255,153,51,0.12);
+}
+
+/* Botón */
+.btn-entrar {
   width: 100%;
-  padding: 10px;
-  background-color: #28a745;
+  padding: 14px;
+  background: #FF9933;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 700;
   cursor: pointer;
+  margin-top: 6px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-entrar:hover:not(:disabled) {
+  background: #e8850a;
+  transform: translateY(-1px);
+}
+
+.btn-entrar:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.login-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.login-footer p {
+  color: #888;
+  margin: 0 0 6px 0;
+  font-size: 0.9rem;
+}
+
+.login-footer a {
+  color: #FF9933;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.login-footer a:hover {
+  color: #e8850a;
+  text-decoration: underline;
 }

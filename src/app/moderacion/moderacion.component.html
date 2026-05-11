@@ -1,202 +1,140 @@
-<div style="padding: 20px; max-width: 1400px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-  <h1 style="text-align: center; margin-bottom: 30px; color: #333;">Panel de Moderación</h1>
+<div class="mod-page">
 
-  <!-- Mensajes de estado -->
-  <div *ngIf="successMensaje" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-    {{ successMensaje }}
-  </div>
+  <!-- Navbar Admin -->
+  <nav class="mod-nav">
+    <div class="nav-logo">
+      <span class="logo-m">m</span><span class="logo-o">◉</span><span class="logo-labora">labora</span>
+      <span class="nav-admin-badge">Panel Admin</span>
+    </div>
+    <button class="btn-volver" (click)="volverHome()">← Volver al inicio</button>
+  </nav>
 
-  <div *ngIf="errorMensaje" style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-    {{ errorMensaje }}
-  </div>
+  <!-- Alertas -->
+  <div *ngIf="successMensaje" class="alert alert-success">{{ successMensaje }}</div>
+  <div *ngIf="errorMensaje" class="alert alert-error">{{ errorMensaje }}</div>
 
   <!-- Estadísticas -->
-  <div *ngIf="estadisticas" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
-      <h3 style="margin: 0;">{{ estadisticas.total_users }}</h3>
-      <p style="margin: 8px 0 0 0;">Usuarios Totales</p>
+  <div *ngIf="estadisticas" class="stats-grid">
+    <div class="stat-card stat-total">
+      <div class="stat-num">{{ estadisticas.total_users }}</div>
+      <div class="stat-label">Usuarios Totales</div>
     </div>
-
-    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
-      <h3 style="margin: 0;">{{ estadisticas.premium_users }}</h3>
-      <p style="margin: 8px 0 0 0;">Usuarios Premium</p>
+    <div class="stat-card stat-premium">
+      <div class="stat-num">{{ estadisticas.premium_users }}</div>
+      <div class="stat-label">Premium</div>
     </div>
-
-    <div style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
-      <h3 style="margin: 0;">{{ estadisticas.banned_users }}</h3>
-      <p style="margin: 8px 0 0 0;">Usuarios Baneados</p>
+    <div class="stat-card stat-banned">
+      <div class="stat-num">{{ estadisticas.banned_users }}</div>
+      <div class="stat-label">Baneados</div>
     </div>
-
-    <div style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
-      <h3 style="margin: 0;">{{ estadisticas.unverified_emails }}</h3>
-      <p style="margin: 8px 0 0 0;">Emails No Verificados</p>
+    <div class="stat-card stat-contracts">
+      <div class="stat-num">{{ estadisticas.active_contracts }}</div>
+      <div class="stat-label">Contratos Activos</div>
     </div>
-
-    <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333; padding: 20px; border-radius: 10px; text-align: center;">
-      <h3 style="margin: 0;">{{ estadisticas.active_contracts }}</h3>
-      <p style="margin: 8px 0 0 0;">Contratos Activos</p>
-    </div>
-
-    <div style="background: linear-gradient(135deg, #ff9a56 0%, #ff6a88 100%); color: white; padding: 20px; border-radius: 10px; text-align: center;">
-      <h3 style="margin: 0;">{{ estadisticas.completed_contracts }}</h3>
-      <p style="margin: 8px 0 0 0;">Contratos Completados</p>
+    <div class="stat-card stat-completed">
+      <div class="stat-num">{{ estadisticas.completed_contracts }}</div>
+      <div class="stat-label">Contratos Completados</div>
     </div>
   </div>
 
-  <!-- Lista de usuarios -->
-  <div style="background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-    <h2 style="margin-top: 0; color: #333;">Gestión de Usuarios</h2>
-
-    <div *ngIf="cargando" style="text-align: center; padding: 40px; color: #666;">
-      <p>Cargando usuarios...</p>
+  <!-- Tabla usuarios -->
+  <div class="mod-tabla-wrap molabora-card">
+    <div class="mod-tabla-header">
+      <h2 class="seccion-titulo">Gestión de Usuarios</h2>
+      <button class="btn-refresh" (click)="cargarUsuarios()">↻ Actualizar</button>
     </div>
 
-    <table *ngIf="!cargando && usuarios.length > 0" style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
-          <th style="padding: 12px; text-align: left; font-weight: 600;">Nombre</th>
-          <th style="padding: 12px; text-align: left; font-weight: 600;">Email</th>
-          <th style="padding: 12px; text-align: left; font-weight: 600;">Rol</th>
-          <th style="padding: 12px; text-align: left; font-weight: 600;">Premium</th>
-          <th style="padding: 12px; text-align: left; font-weight: 600;">Estado Email</th>
-          <th style="padding: 12px; text-align: left; font-weight: 600;">Estado Cuenta</th>
-          <th style="padding: 12px; text-align: center; font-weight: 600;">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let usuario of usuarios" style="border-bottom: 1px solid #ddd; transition: background 0.2s;">
-          <td style="padding: 12px;">{{ usuario.name }}</td>
-          <td style="padding: 12px;">{{ usuario.email }}</td>
-          <td style="padding: 12px;">
-            <span style="background: #007bff; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
-              {{ usuario.role }}
-            </span>
-          </td>
-          <td style="padding: 12px;">
-            <span *ngIf="usuario.is_premium" style="background: #ffc107; color: #333; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
-              Sí ✓
-            </span>
-            <span *ngIf="!usuario.is_premium" style="background: #ddd; color: #666; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
-              No
-            </span>
-          </td>
-          <td style="padding: 12px;">
-            <span *ngIf="usuario.email_verified" style="background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
-              Verificado ✓
-            </span>
-            <span *ngIf="!usuario.email_verified" style="background: #dc3545; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
-              Sin verificar
-            </span>
-          </td>
-          <td style="padding: 12px;">
-            <span *ngIf="usuario.is_banned" style="background: #dc3545; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
-              BANEADO
-            </span>
-            <span *ngIf="!usuario.is_banned" style="background: #28a745; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85em;">
-              Activo
-            </span>
-          </td>
-          <td style="padding: 12px; text-align: center;">
-            <button 
-              (click)="abrirModal(usuario, 'rol')"
-              style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin-right: 5px;"
-            >
-              Rol
-            </button>
-            <button 
-              *ngIf="!usuario.is_banned"
-              (click)="abrirModal(usuario, 'banear')"
-              style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin-right: 5px;"
-            >
-              Banear
-            </button>
-            <button 
-              *ngIf="usuario.is_banned"
-              (click)="desbanearUsuario(usuario)"
-              style="padding: 6px 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin-right: 5px;"
-            >
-              Desbanear
-            </button>
-            <button 
-              *ngIf="!usuario.email_verified"
-              (click)="verificarEmailManualmente(usuario)"
-              style="padding: 6px 12px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9em;"
-            >
-              Verificar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div *ngIf="cargando" class="cargando-txt">Cargando usuarios...</div>
 
-    <div *ngIf="!cargando && usuarios.length === 0" style="text-align: center; padding: 40px; color: #666;">
-      <p>No hay usuarios para mostrar</p>
+    <div *ngIf="!cargando && usuarios.length === 0" class="sin-datos">No hay usuarios para mostrar.</div>
+
+    <div *ngIf="!cargando && usuarios.length > 0" class="tabla-scroll">
+      <table class="mod-tabla">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Premium</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of usuarios" [class.fila-baneada]="usuario.is_banned">
+            <td class="td-nombre">{{ usuario.name }}</td>
+            <td class="td-email">{{ usuario.email }}</td>
+            <td>
+              <span class="badge" [ngClass]="usuario.role === 'administrador' ? 'badge-admin' : 'badge-muted'">
+                {{ usuario.role }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="usuario.is_premium" class="badge badge-premium">⭐ Sí</span>
+              <span *ngIf="!usuario.is_premium" class="badge badge-muted">No</span>
+            </td>
+            <td>
+              <span *ngIf="usuario.is_banned" class="badge badge-danger">BANEADO</span>
+              <span *ngIf="!usuario.is_banned" class="badge badge-success">Activo</span>
+            </td>
+            <td class="td-acciones">
+              <button class="btn-accion btn-rol" (click)="abrirModal(usuario, 'rol')">Rol</button>
+              <button
+                class="btn-accion"
+                [ngClass]="usuario.is_premium ? 'btn-quitar-premium' : 'btn-premium'"
+                (click)="togglePremium(usuario)"
+              >
+                {{ usuario.is_premium ? 'Quitar Premium' : 'Dar Premium' }}
+              </button>
+              <button *ngIf="!usuario.is_banned" class="btn-accion btn-ban" (click)="abrirModal(usuario, 'banear')">Banear</button>
+              <button *ngIf="usuario.is_banned" class="btn-accion btn-unban" (click)="desbanearUsuario(usuario)">Desbanear</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
   <!-- Modal -->
-  <div *ngIf="modalAbierto" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
-    <div style="background: white; border-radius: 12px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+  <div *ngIf="modalAbierto" class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
       <!-- Cambiar Rol -->
       <div *ngIf="accionModal === 'rol'">
-        <h2 style="margin-top: 0; color: #333;">Cambiar Rol de {{ usuarioSeleccionado.name }}</h2>
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">
-            Nuevo Rol
-          </label>
-          <select 
-            [(ngModel)]="nuevoRol"
-            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;"
-          >
+        <h2 class="modal-titulo">Cambiar Rol</h2>
+        <p class="modal-subtitulo">Usuario: <strong>{{ usuarioSeleccionado.name }}</strong></p>
+        <div class="campo-edit">
+          <label>Nuevo Rol</label>
+          <select [(ngModel)]="nuevoRol">
             <option value="normal">Usuario Normal</option>
             <option value="administrador">Administrador</option>
           </select>
         </div>
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button 
-            (click)="cerrarModal()"
-            style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;"
-          >
-            Cancelar
-          </button>
-          <button 
-            (click)="cambiarRol()"
-            style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer;"
-          >
-            Cambiar Rol
-          </button>
+        <div class="modal-botones">
+          <button class="btn-modal-cancel" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-modal-confirm" (click)="cambiarRol()">Cambiar Rol</button>
         </div>
       </div>
 
-      <!-- Banear Usuario -->
+      <!-- Banear -->
       <div *ngIf="accionModal === 'banear'">
-        <h2 style="margin-top: 0; color: #333;">Banear a {{ usuarioSeleccionado.name }}</h2>
-        <div style="margin-bottom: 20px;">
-          <label style="display: block; font-weight: 600; color: #333; margin-bottom: 8px;">
-            Razón del Baneo
-          </label>
-          <textarea 
+        <h2 class="modal-titulo modal-titulo-danger">Banear Usuario</h2>
+        <p class="modal-subtitulo">Usuario: <strong>{{ usuarioSeleccionado.name }}</strong></p>
+        <div class="campo-edit">
+          <label>Razón del baneo</label>
+          <textarea
             [(ngModel)]="razonBaneo"
-            rows="4"
-            placeholder="Explica por qué estás baneando a este usuario..."
-            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px;"
+            rows="3"
+            placeholder="Explica la razón del baneo..."
           ></textarea>
         </div>
-        <div style="display: flex; gap: 10px; justify-content: flex-end;">
-          <button 
-            (click)="cerrarModal()"
-            style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;"
-          >
-            Cancelar
-          </button>
-          <button 
-            (click)="banearUsuario()"
-            style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer;"
-          >
-            Banear Usuario
-          </button>
+        <div class="modal-botones">
+          <button class="btn-modal-cancel" (click)="cerrarModal()">Cancelar</button>
+          <button class="btn-modal-danger" (click)="banearUsuario()">Banear</button>
         </div>
       </div>
+
     </div>
   </div>
+
 </div>

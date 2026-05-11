@@ -1,213 +1,287 @@
-<div style="padding: 20px; max-width: 1200px; margin: 0 auto; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f9f9f9;">
-  <!-- Barra superior -->
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #FF9933 0%, #FF6B35 100%); border-radius: 8px;">
-    <h1 style="margin: 0; color: white; font-size: 2em;">MoLabora</h1>
-    <div style="display: flex; gap: 15px; align-items: center;">
-      <span *ngIf="currentUser" style="color: white; font-size: 0.95em;">
-        <strong>{{ currentUser.name }}</strong>
-        <span *ngIf="currentUser.is_premium" style="background: #FFD700; color: #333; padding: 4px 10px; border-radius: 12px; font-size: 0.85em; margin-left: 8px; font-weight: bold;">PREMIUM</span>
+<div class="home-page">
+  <!-- Navbar Molabora -->
+  <nav class="molabora-nav">
+    <div class="nav-logo">
+      <span class="logo-m">m</span><span class="logo-o">o</span><span class="logo-labora">labora</span>
+    </div>
+    <div class="nav-acciones">
+      <span *ngIf="currentUser" class="nav-usuario">
+        {{ currentUser.name }}
+        <span *ngIf="currentUser.is_premium" class="badge-premium-nav">PREMIUM</span>
       </span>
-      <button 
-        *ngIf="currentUser?.role === 'administrador'"
-        (click)="irAModeracion()"
-        style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;"
-      >
-        Panel Admin
-      </button>
-      <button 
-        (click)="logout()"
-        style="padding: 10px 20px; background: rgba(255,255,255,0.2); color: white; border: 2px solid white; border-radius: 6px; cursor: pointer; font-weight: 600;"
-      >
-        Logout
+      <button *ngIf="!currentUser?.is_premium" class="btn-nav-premium" (click)="irAPremium()">Premium</button>
+      <button *ngIf="currentUser?.role === 'administrador'" class="btn-nav-admin" (click)="irAModeracion()">Admin</button>
+      <button class="btn-nav-logout" (click)="logout()">Salir</button>
+    </div>
+  </nav>
+
+  <!-- Banner email no verificado - DESHABILITADO TEMPORALMENTE -->
+  <!-- Reactivar cuando dominio molabora.com esté verificado en Resend -->
+  <div *ngIf="false && currentUser && !currentUser.email_verified" class="banner-verificacion">
+    <div class="banner-verificacion-texto">
+      <span><strong>Tu email no está verificado.</strong> Debes verificarlo para poder crear contratos.</span>
+    </div>
+    <div class="banner-verificacion-acciones">
+      <span *ngIf="reenvioMensaje" class="reenvio-ok">{{ reenvioMensaje }}</span>
+      <span *ngIf="reenvioError" class="reenvio-error">{{ reenvioError }}</span>
+      <button *ngIf="!reenvioEnviado" class="btn-reenviar" (click)="reenviarVerificacion()">
+        Reenviar email
       </button>
     </div>
   </div>
 
-  <!-- Sección Mi Perfil -->
-  <div style="background: #f5f5f5; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-    <h2 style="color: #FF9933; margin-top: 0; border-bottom: 3px solid #FF9933; padding-bottom: 10px;">Mi Perfil</h2>
+  <!-- Mi Perfil -->
+  <section class="seccion molabora-card">
+    <h2 class="seccion-titulo">Mi Perfil</h2>
 
-    <div *ngIf="errorMensaje" style="background: #f8d7da; color: #721c24; border: 2px solid #FF9933; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-      ERROR: {{ errorMensaje }}
-    </div>
+    <div *ngIf="errorMensaje" class="alert alert-error">{{ errorMensaje }}</div>
+    <div *ngIf="!currentUser" class="cargando-txt">Cargando perfil...</div>
 
-    <div *ngIf="!currentUser" style="text-align: center; padding: 40px; color: #666;">
-      <p>Cargando perfil...</p>
-    </div>
-
-    <div *ngIf="currentUser && !modoEdicion" style="display: grid; grid-template-columns: 150px 1fr; gap: 30px;">
-      <div style="text-align: center;">
-        <div *ngIf="currentUser.photo" style="width: 150px; height: 150px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 4px solid #FF9933;">
-          <img [src]="currentUser.photo" alt="Foto" style="width: 100%; height: 100%; object-fit: cover;" />
+    <!-- Vista perfil -->
+    <div *ngIf="currentUser && !modoEdicion" class="perfil-vista">
+      <div class="perfil-foto-wrap">
+        <div *ngIf="currentUser.photo" class="perfil-foto">
+          <img [src]="currentUser.photo" alt="Foto" />
         </div>
-        <div *ngIf="!currentUser.photo" style="width: 150px; height: 150px; margin: 0 auto; border-radius: 12px; border: 4px solid #ddd; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999;">
-          Sin foto
-        </div>
+        <div *ngIf="!currentUser.photo" class="perfil-foto perfil-foto-vacia">Sin foto</div>
       </div>
+      <div class="perfil-datos">
+        <div class="perfil-nombre-fila">
+          <h3>{{ currentUser.name }}</h3>
+          <span *ngIf="currentUser.is_premium" class="badge badge-premium">Premium</span>
+          <span *ngIf="currentUser.role === 'administrador'" class="badge badge-admin">Admin</span>
+        </div>
+        <p class="perfil-email">{{ currentUser.email }}</p>
 
-      <div>
-        <h3 style="margin: 0 0 5px 0; color: #333; font-size: 1.5em;">{{ currentUser.name }}</h3>
-        <p style="margin: 0 0 5px 0; color: #666;"><strong>{{ currentUser.role }}</strong> | {{ currentUser.email }}</p>
-        <p style="margin: 0 0 15px 0; font-size: 0.9em;">
-          <span *ngIf="currentUser.email_verified" style="color: #28a745; font-weight: bold;">✓ Email Verificado</span>
-          <span *ngIf="!currentUser.email_verified" style="color: #dc3545; font-weight: bold;">✗ Email no verificado</span>
-        </p>
-        <button *ngIf="!currentUser.email_verified" type="button" (click)="verificarEmail()" style="margin-bottom: 15px; padding: 8px 16px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9em;">
-          Verificar Email
-        </button>
-        
-        <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #FF9933; margin-bottom: 15px;">
-          <strong style="color: #FF9933;">Biografía</strong>
-          <p style="margin: 8px 0 0 0; color: #666;">{{ currentUser.bio || 'Sin biografía' }}</p>
+        <div class="perfil-bio">
+          <strong>Biografía</strong>
+          <p>{{ currentUser.bio || 'Sin biografía' }}</p>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div style="background: white; padding: 12px; border-radius: 8px;">
-            <strong style="color: #FF9933; font-size: 0.9em;">Estudios</strong>
-            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.studies || '-' }}</p>
+        <div class="perfil-grid">
+          <div class="perfil-campo">
+            <strong>Estudios</strong>
+            <span>{{ currentUser.studies || '-' }}</span>
           </div>
-          <div style="background: white; padding: 12px; border-radius: 8px;">
-            <strong style="color: #FF9933; font-size: 0.9em;">Experiencia</strong>
-            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.experience || '-' }}</p>
+          <div class="perfil-campo">
+            <strong>Experiencia</strong>
+            <span>{{ currentUser.experience || '-' }}</span>
           </div>
-          <div style="background: white; padding: 12px; border-radius: 8px;">
-            <strong style="color: #FF9933; font-size: 0.9em;">Horario</strong>
-            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.schedule || '-' }}</p>
+          <div class="perfil-campo">
+            <strong>Horario</strong>
+            <span>{{ currentUser.schedule || '-' }}</span>
           </div>
-                    <div style="background: white; padding: 12px; border-radius: 8px;">
-            <strong style="color: #FF9933; font-size: 0.9em;">Tarifa por hora</strong>
-            <p style="margin: 6px 0 0 0; color: #666; font-size: 0.9em;">{{ currentUser.rates || '-' }}€/h</p>
+          <div class="perfil-campo">
+            <strong>Tarifa/hora</strong>
+            <span>{{ currentUser.rates ? currentUser.rates + '€/h' : '-' }}</span>
           </div>
         </div>
 
-        <button type="button" (click)="entrarEnEdicion()" style="padding: 12px 24px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-          Editar Perfil
-        </button>
+        <button type="button" class="btn-editar" (click)="entrarEnEdicion()">Editar Perfil</button>
       </div>
     </div>
 
     <!-- Modo Edición -->
-    <div *ngIf="currentUser && modoEdicion">
-      <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #FF9933;">
-        <h3 style="color: #FF9933; margin-top: 0;">Editando tu Perfil</h3>
-        
-        <div style="margin-bottom: 20px; text-align: center;">
-          <div *ngIf="previewFoto || currentUser.photo" style="width: 120px; height: 120px; margin: 0 auto; border-radius: 12px; overflow: hidden; border: 3px solid #FF9933;">
-            <img [src]="previewFoto || currentUser.photo" style="width: 100%; height: 100%; object-fit: cover;" />
-          </div>
-          <label style="display: inline-block; margin-top: 15px; padding: 10px 20px; background: #FF9933; color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">
-            Cambiar Foto
-            <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" style="display: none;" />
-          </label>
+    <div *ngIf="currentUser && modoEdicion" class="perfil-edicion">
+      <h3 class="edicion-titulo">Editando tu Perfil</h3>
+
+      <div class="edicion-foto">
+        <div *ngIf="previewFoto || currentUser.photo" class="perfil-foto">
+          <img [src]="previewFoto || currentUser.photo" />
         </div>
+        <label class="btn-cambiar-foto">
+          Cambiar Foto
+          <input type="file" accept="image/*" (change)="onFotoSeleccionada($event)" style="display:none" />
+        </label>
+      </div>
 
-        <div style="display: grid; gap: 15px;">
-          <div>
-            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Biografía</label>
-            <textarea [(ngModel)]="currentUser.bio" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"></textarea>
-          </div>
-          <div>
-            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Estudios</label>
-            <textarea [(ngModel)]="currentUser.studies" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"></textarea>
-          </div>
-          <div>
-            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Experiencia</label>
-            <textarea [(ngModel)]="currentUser.experience" rows="2" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;"></textarea>
-          </div>
-          <div>
-            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Horario</label>
-            <input type="text" [(ngModel)]="currentUser.schedule" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" />
-          </div>
-          <div>
-            <label style="display: block; font-weight: 600; color: #333; margin-bottom: 5px;">Tarifa por hora (€)</label>
-            <input type="number" [(ngModel)]="currentUser.rates" step="0.01" min="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;" placeholder="Ejemplo: 25.50" />
-          </div>
-
-          <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <button type="button" (click)="saveProfile()" style="flex: 1; padding: 12px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-              Guardar
-            </button>
-            <button type="button" (click)="cancelarEdicion()" style="flex: 1; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-              Cancelar
-            </button>
-          </div>
+      <div class="edicion-campos">
+        <div class="campo-edit">
+          <label>Biografía</label>
+          <textarea [(ngModel)]="currentUser.bio" rows="2"></textarea>
+        </div>
+        <div class="campo-edit">
+          <label>Estudios</label>
+          <textarea [(ngModel)]="currentUser.studies" rows="2"></textarea>
+        </div>
+        <div class="campo-edit">
+          <label>Experiencia</label>
+          <textarea [(ngModel)]="currentUser.experience" rows="2"></textarea>
+        </div>
+        <div class="campo-edit">
+          <label>Horario</label>
+          <input type="text" [(ngModel)]="currentUser.schedule" />
+        </div>
+        <div class="campo-edit">
+          <label>Tarifa por hora (€)</label>
+          <input type="number" [(ngModel)]="currentUser.rates" step="0.01" min="0" placeholder="25.00" />
+        </div>
+        <div class="edicion-botones">
+          <button type="button" class="btn-guardar" (click)="saveProfile()">Guardar</button>
+          <button type="button" class="btn-cancelar" (click)="cancelarEdicion()">Cancelar</button>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Sección Buscador -->
-  <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 2px solid #FF9933;">
-    <h2 style="color: #FF9933; margin-top: 0; border-bottom: 3px solid #FF9933; padding-bottom: 10px;">Buscador</h2>
+  <!-- Mis Contratos -->
+  <section class="seccion molabora-card">
+    <div class="contratos-header" (click)="toggleContratos()">
+      <h2 class="seccion-titulo" style="margin:0">Mis Contratos
+        <span class="contratos-count" *ngIf="misContratos.length > 0">({{ misContratos.length }})</span>
+      </h2>
+      <span class="contratos-toggle">{{ mostrarContratos ? '▲ Ocultar' : '▼ Ver contratos' }}</span>
+    </div>
+
+    <div *ngIf="mostrarContratos" class="contratos-panel">
+      <!-- Filtros -->
+      <div class="contratos-filtros">
+        <button [class.filtro-activo]="contratoFiltro==='todos'" (click)="contratoFiltro='todos'">Todos</button>
+        <button [class.filtro-activo]="contratoFiltro==='active'" (click)="contratoFiltro='active'">Activos</button>
+        <button [class.filtro-activo]="contratoFiltro==='completed'" (click)="contratoFiltro='completed'">Completados</button>
+        <button [class.filtro-activo]="contratoFiltro==='cancelled'" (click)="contratoFiltro='cancelled'">Cancelados</button>
+      </div>
+
+      <!-- Lista contratos -->
+      <div *ngIf="contratosFiltrados.length === 0" class="contratos-vacio">
+        No hay contratos para mostrar.
+      </div>
+
+      <div *ngFor="let contrato of contratosFiltrados" class="contrato-item">
+        <div class="contrato-cabecera">
+          <div class="contrato-partes">
+            <span class="contrato-rol" *ngIf="esCliente(contrato)">Tú → <strong>{{ contrato.professional_name }}</strong></span>
+            <span class="contrato-rol" *ngIf="!esCliente(contrato)"><strong>{{ contrato.client_name }}</strong> → Tú</span>
+          </div>
+          <span class="contrato-estado" [ngClass]="getStatusClass(contrato.status)">
+            {{ getStatusLabel(contrato.status) }}
+          </span>
+        </div>
+        <p class="contrato-desc">{{ contrato.description }}</p>
+        <div class="contrato-acciones" *ngIf="contrato.status === 'active'">
+          <button class="btn-completar" (click)="actualizarContrato(contrato, 'completed')">Completado</button>
+          <button class="btn-cancelar-contrato" (click)="actualizarContrato(contrato, 'cancelled')">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Buscador -->
+  <section class="seccion molabora-card">
+    <h2 class="seccion-titulo">Buscador de Profesionales</h2>
     <app-busqueda (resultados)="onBusquedaResultados($event)"></app-busqueda>
-  </div>
+  </section>
 
-  <!-- Sección Profesionales -->
-  <div style="background: white; padding: 20px; border-radius: 12px;">
-    <h2 style="color: #FF9933; margin-top: 0; border-bottom: 3px solid #FF9933; padding-bottom: 10px;">Profesionales Disponibles</h2>
+  <!-- Profesionales -->
+  <section class="seccion molabora-card">
+    <h2 class="seccion-titulo">Profesionales Disponibles</h2>
 
-    <div *ngIf="listaUsuarios.length === 0" style="text-align: center; padding: 40px; color: #666; background: #f5f5f5; border-radius: 8px;">
+    <div *ngIf="listaUsuarios.length === 0" class="sin-resultados">
       <p>{{ estadoMensaje }}</p>
     </div>
 
-    <div *ngIf="listaUsuarios.length > 0" style="display: grid; gap: 20px;">
-      <div *ngFor="let user of listaUsuarios" style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; display: grid; grid-template-columns: 100px 1fr; gap: 20px; background: #fafafa;">
-        
-        <div style="text-align: center;">
-          <div *ngIf="user.photo" style="width: 100px; height: 100px; border-radius: 10px; overflow: hidden; border: 3px solid #FF9933;">
-            <img [src]="user.photo" style="width: 100%; height: 100%; object-fit: cover;" />
+    <div class="profesionales-lista">
+      <div *ngFor="let user of listaUsuarios" class="profesional-card">
+
+        <div class="prof-foto-wrap">
+          <div *ngIf="user.photo" class="prof-foto">
+            <img [src]="user.photo" alt="Foto de {{ user.name }}" />
           </div>
-          <div *ngIf="!user.photo" style="width: 100px; height: 100px; border-radius: 10px; border: 3px solid #ddd; background: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 0.8em;">
-            Sin foto
-          </div>
+          <div *ngIf="!user.photo" class="prof-foto prof-foto-vacia">Sin foto</div>
+          <span *ngIf="user.is_premium" class="prof-premium-badge">PRO</span>
         </div>
 
-        <div>
-          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+        <div class="prof-info">
+          <div class="prof-cabecera">
             <div>
-              <h4 style="margin: 0; color: #333;">{{ user.name }}</h4>
-              <p style="margin: 2px 0; color: #666; font-size: 0.9em;">{{ user.role }}</p>
+              <h4 class="prof-nombre">{{ user.name }}</h4>
+              <p *ngIf="user.bio" class="prof-bio">{{ user.bio }}</p>
             </div>
-            <button type="button" (click)="openChat(user)" style="padding: 8px 16px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap;">
-              Chat
-            </button>
+            <div class="prof-botones">
+              <button type="button" class="btn-contratar" (click)="abrirModalContrato(user)">Contratar</button>
+              <button type="button" class="btn-chat" (click)="openChat(user)">Chat</button>
+            </div>
           </div>
 
-          <p *ngIf="user.bio" style="margin: 10px 0; color: #555; font-size: 0.9em;">{{ user.bio }}</p>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85em;">
-            <p *ngIf="user.studies" style="margin: 0; color: #666;"><strong>Estudios:</strong> {{ user.studies }}</p>
-            <p *ngIf="user.experience" style="margin: 0; color: #666;"><strong>Experiencia:</strong> {{ user.experience }}</p>
-            <p *ngIf="user.schedule" style="margin: 0; color: #666;"><strong>Horario:</strong> {{ user.schedule }}</p>
-            <p *ngIf="user.rates" style="margin: 0; color: #666;"><strong>Tarifa/h:</strong> {{ user.rates }}€</p>
+          <div class="prof-meta">
+            <span *ngIf="user.studies"><strong>Estudios:</strong> {{ user.studies }}</span>
+            <span *ngIf="user.experience"><strong>Exp:</strong> {{ user.experience }}</span>
+            <span *ngIf="user.schedule"><strong>Horario:</strong> {{ user.schedule }}</span>
+            <span *ngIf="user.rates" class="prof-tarifa"><strong>{{ user.rates }}€/h</strong></span>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal Crear Contrato -->
+  <div *ngIf="modalContrato" class="modal-overlay" (click)="cerrarModalContrato()">
+    <div class="modal-contrato" (click)="$event.stopPropagation()">
+      <div class="modal-contrato-header">
+        <h3>Nuevo Contrato</h3>
+        <button class="modal-cerrar" (click)="cerrarModalContrato()">X</button>
+      </div>
+
+      <div class="modal-contrato-body">
+        <div class="contrato-profesional-info">
+          <div *ngIf="profesionalParaContrato?.photo" class="contrato-prof-foto">
+            <img [src]="profesionalParaContrato.photo" alt="foto" />
+          </div>
+          <div>
+            <strong>{{ profesionalParaContrato?.name }}</strong>
+            <span *ngIf="profesionalParaContrato?.rates" class="contrato-tarifa">{{ profesionalParaContrato.rates }}€/h</span>
+          </div>
+        </div>
+
+        <div *ngIf="contratoError" class="alert alert-error">{{ contratoError }}</div>
+        <div *ngIf="contratoMensaje" class="alert alert-success">{{ contratoMensaje }}</div>
+
+        <div class="campo-edit">
+          <label>Descripción del trabajo</label>
+          <textarea
+            [(ngModel)]="descripcionContrato"
+            rows="4"
+            placeholder="Describe el trabajo a realizar, objetivos, plazos..."
+          ></textarea>
+        </div>
+
+        <div class="modal-contrato-botones">
+          <button class="btn-modal-cancel" (click)="cerrarModalContrato()">Cancelar</button>
+          <button class="btn-modal-confirm" (click)="crearContrato()">Crear Contrato</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Chat -->
-  <div *ngIf="selectedChatUser" style="margin-top: 30px; border: 2px solid #FF9933; border-radius: 12px; padding: 20px; background: #fffbf0;">
-    <h3 style="color: #FF9933; margin-top: 0;">Chat con {{ selectedChatUser.name }}</h3>
-    
-    <div style="max-height: 300px; overflow-y: auto; background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-      <div *ngFor="let message of chatMessages" 
-           [style.justify-self]="message.sender_id === currentUser.id ? 'end' : 'start'"
-           [style.background]="message.sender_id === currentUser.id ? '#FF9933' : '#e9ecef'"
-           [style.color]="message.sender_id === currentUser.id ? 'white' : '#333'"
-           style="padding: 10px; border-radius: 8px; margin-bottom: 10px; max-width: 70%; word-wrap: break-word;">
-        <p style="margin: 0 0 3px 0; font-weight: 600; font-size: 0.9em;">
-          {{ message.sender_id === currentUser.id ? 'Tú' : selectedChatUser.name }}
-        </p>
-        <p style="margin: 0;">{{ message.message }}</p>
-      </div>
+  <!-- Chat flotante -->
+  <div *ngIf="selectedChatUser" class="chat-panel">
+    <div class="chat-header">
+      <span>Chat con <strong>{{ selectedChatUser.name }}</strong></span>
+      <button class="chat-cerrar" (click)="selectedChatUser = null">X</button>
     </div>
 
-    <div style="display: flex; gap: 10px;">
-      <input type="text" [(ngModel)]="chatText" (keyup.enter)="sendMessage()" placeholder="Escribe un mensaje..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;" />
-      <button type="button" (click)="sendMessage()" style="padding: 10px 20px; background: #FF9933; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
-        Enviar
-      </button>
+    <div class="chat-mensajes">
+      <div
+        *ngFor="let message of chatMessages"
+        class="chat-burbuja"
+        [class.chat-propio]="message.sender_id === currentUser.id"
+        [class.chat-ajeno]="message.sender_id !== currentUser.id"
+      >
+        <span class="chat-autor">{{ message.sender_id === currentUser.id ? 'Tú' : selectedChatUser.name }}</span>
+        <p>{{ message.message }}</p>
+      </div>
+      <div *ngIf="chatMessages.length === 0" class="chat-vacio">No hay mensajes aún. Inicia la conversación.</div>
+    </div>
+
+    <div class="chat-input">
+      <input
+        type="text"
+        [(ngModel)]="chatText"
+        (keyup.enter)="sendMessage()"
+        placeholder="Escribe un mensaje..."
+      />
+      <button (click)="sendMessage()">Enviar</button>
     </div>
   </div>
+
 </div>

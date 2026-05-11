@@ -4,10 +4,63 @@ const router = express.Router();
 const pool = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { Resend } = require('resend');
 
-const SECRET = process.env.JWT_SECRET || 'secreto';
+const SECRET = process.env.JWT_SECRET || 'molabora_secret_jwt_2024';
 const TOKEN_EXPIRES_IN = process.env.TOKEN_EXPIRES_IN || '8h';
-const VALID_ROLES = ['normal', 'administrador'];
+const RESEND_API_KEY = process.env.RESEND_API_KEY || 're_6Jn31cs6_GddDJjDb1zCnYjsjzV7tAJiK';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:4200';
+// Usar onboarding@resend.dev hasta que molabora.com esté verificado en Resend
+const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+
+const resend = new Resend(RESEND_API_KEY);
+
+async function enviarEmailVerificacion(email, nombre, token) {
+  const url = `${FRONTEND_URL}/verify-email?token=${token}`;
+  try {
+    await resend.emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: 'Verifica tu email en MoLabora',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"></head>
+        <body style="font-family:'Segoe UI',sans-serif;background:#f9f9f9;margin:0;padding:0;">
+          <div style="max-width:560px;margin:40px auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div style="background:#4A3B6B;padding:32px;text-align:center;">
+              <h1 style="color:white;margin:0;font-size:2rem;letter-spacing:-1px;">
+                m<span style="color:#FF9933;">◉</span>labora
+              </h1>
+            </div>
+            <!-- Body -->
+            <div style="padding:36px 40px;">
+              <h2 style="color:#333;margin-top:0;">¡Hola, ${nombre}!</h2>
+              <p style="color:#555;line-height:1.6;">Gracias por registrarte en <strong>MoLabora</strong>. Para activar tu cuenta y poder crear contratos, necesitas verificar tu dirección de email.</p>
+              <div style="text-align:center;margin:32px 0;">
+                <a href="${url}" style="background:#FF9933;color:white;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:1rem;display:inline-block;">✓ Verificar mi email</a>
+              </div>
+              <p style="color:#888;font-size:0.85rem;">Si el botón no funciona, copia y pega este enlace en tu navegador:</p>
+              <p style="color:#FF9933;font-size:0.82rem;word-break:break-all;">${url}</p>
+              <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
+              <p style="color:#aaa;font-size:0.8rem;margin:0;">Este enlace caduca en 24 horas. Si no creaste esta cuenta, ignora este email.</p>
+            </div>
+            <!-- Footer -->
+            <div style="background:#f5f5f5;padding:16px;text-align:center;">
+              <p style="color:#aaa;font-size:0.8rem;margin:0;">© 2024 MoLabora</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    });
+    console.log('✓ Email de verificación enviado a:', email);
+  } catch (err) {
+    console.error('Error enviando email:', err.message);
+  }
+}
 
 function verifyToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -44,6 +97,7 @@ router.post('/register', async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+  const verificationToken = crypto.randomBytes(32).toString('hex');
 
   try {
     const checkEmail = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
@@ -51,18 +105,84 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Email ya existe' });
     }
 
-    const result = await pool.query(
-      'INSERT INTO users (name, email, password, role, email_verified) VALUES ($1,$2,$3,$4,$5) RETURNING id, name, email, role',
-      [name, email, hashedPassword, roleValue, true]
+        const result = await pool.query(
+      'INSERT INTO users (name, email, password, role, email_verified, verification_token) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id, name, email, role',
+      [name, email, hashedPassword, roleValue, true, verificationToken]
     );
 
+    // EMAIL VERIFICACIÓN DESHABILITADO TEMPORALMENTE
+    // (dominio molabora.com pendiente de verificar en Resend)
+    // Reactivar cuando el dominio esté verificado:
+    // await enviarEmailVerificacion(email, name, verificationToken);
+
     res.json({
-      message: 'Usuario registrado correctamente',
+      message: 'Usuario registrado correctamente.',
       user: result.rows[0]
     });
   } catch (err) {
     console.error('Error en registro:', err.message);
     res.status(500).json({ error: 'Error al registrar usuario' });
+  }
+});
+
+// VERIFICAR EMAIL por token
+router.get('/verify-email', async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Token no proporcionado' });
+  }
+
+  try {
+    const result = await pool.query(
+      'UPDATE users SET email_verified = true, verification_token = NULL WHERE verification_token = $1 RETURNING id, name, email, email_verified',
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Token inválido o ya utilizado' });
+    }
+
+    res.json({
+      message: '¡Email verificado correctamente! Ya puedes crear contratos.',
+      user: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Error verificando email:', err);
+    res.status(500).json({ error: 'Error al verificar email' });
+  }
+});
+
+// REENVIAR email de verificación
+router.post('/resend-verification', verifyToken, async (req, res) => {
+  try {
+    const userResult = await pool.query(
+      'SELECT id, name, email, email_verified FROM users WHERE id = $1',
+      [req.user.id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const user = userResult.rows[0];
+
+    if (user.email_verified) {
+      return res.status(400).json({ error: 'Tu email ya está verificado' });
+    }
+
+    const newToken = crypto.randomBytes(32).toString('hex');
+    await pool.query(
+      'UPDATE users SET verification_token = $1 WHERE id = $2',
+      [newToken, req.user.id]
+    );
+
+    await enviarEmailVerificacion(user.email, user.name, newToken);
+
+    res.json({ message: 'Email de verificación reenviado correctamente' });
+  } catch (err) {
+    console.error('Error reenviando verificación:', err);
+    res.status(500).json({ error: 'Error al reenviar email' });
   }
 });
 

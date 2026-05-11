@@ -79,16 +79,20 @@ export class UsuarioService {
       return this.http.get<any[]>(url, { headers: cabeceras });
     }
 
-  crearSesionPago(): Observable<any> {
-    const token = localStorage.getItem('token');
-    const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post(`${this.apiUrl}/premium/create-checkout-session`, {}, { headers: cabeceras });
+    obtenerPlanes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/premium/plans`);
   }
 
-  verificarPago(sessionId: string): Observable<any> {
+  crearSesionPago(planId: number): Observable<any> {
     const token = localStorage.getItem('token');
     const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post(`${this.apiUrl}/premium/verify-payment`, { sessionId }, { headers: cabeceras });
+    return this.http.post(`${this.apiUrl}/premium/create-checkout-session`, { planId }, { headers: cabeceras });
+  }
+
+  verificarPago(sessionId: string, planId: number): Observable<any> {
+    const token = localStorage.getItem('token');
+    const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.post(`${this.apiUrl}/premium/verify-payment`, { sessionId, planId }, { headers: cabeceras });
   }
 
   obtenerEstadoPremium(): Observable<any> {
@@ -129,10 +133,16 @@ export class UsuarioService {
     return this.http.get<any[]>(`${this.apiUrl}/moderation/users`, { headers: cabeceras });
   }
 
-  cambiarRolUsuario(usuarioId: number, rol: string): Observable<any> {
+    cambiarRolUsuario(usuarioId: number, rol: string): Observable<any> {
     const token = localStorage.getItem('token');
     const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
     return this.http.patch(`${this.apiUrl}/moderation/users/${usuarioId}/role`, { role: rol }, { headers: cabeceras });
+  }
+
+  cambiarPremiumUsuario(usuarioId: number, isPremium: boolean): Observable<any> {
+    const token = localStorage.getItem('token');
+    const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+    return this.http.patch(`${this.apiUrl}/moderation/users/${usuarioId}/premium`, { is_premium: isPremium }, { headers: cabeceras });
   }
 
   banearUsuario(usuarioId: number, razon: string): Observable<any> {
@@ -153,17 +163,17 @@ export class UsuarioService {
     return this.http.post(`${this.apiUrl}/moderation/users/${usuarioId}/verify-email`, {}, { headers: cabeceras });
   }
 
-  obtenerEstadisticas(): Observable<any> {
-    const token = localStorage.getItem('token');
-    const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.get(`${this.apiUrl}/moderation/stats`, { headers: cabeceras });
-  }
+    obtenerEstadisticas(): Observable<any> {
+      const token = localStorage.getItem('token');
+      const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      return this.http.get(`${this.apiUrl}/moderation/stats`, { headers: cabeceras });
+    }
 
-    verificarEmailManual(): Observable<any> {
-    const token = localStorage.getItem('token');
-    const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
-    return this.http.post(`${this.apiUrl}/auth/verify-email-manual`, {}, { headers: cabeceras });
-  }
+    reenviarVerificacion(): Observable<any> {
+      const token = localStorage.getItem('token');
+      const cabeceras = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+      return this.http.post(`${this.apiUrl}/auth/resend-verification`, {}, { headers: cabeceras });
+    }
 
   logout(): void {
     localStorage.removeItem('token');

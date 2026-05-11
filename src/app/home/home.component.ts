@@ -25,6 +25,23 @@ export class HomeComponent implements OnInit {
   modoEdicion: boolean = false;
   userEditTemporal: any = null;
 
+  // Contratos
+  misContratos: any[] = [];
+  mostrarContratos: boolean = false;
+  contratoFiltro: string = 'todos';
+  // Modal nuevo contrato
+  modalContrato: boolean = false;
+  profesionalParaContrato: any = null;
+  descripcionContrato: string = '';
+  contratoMensaje: string = '';
+  contratoError: string = '';
+  // Perfil expandido
+  perfilExpandido: any = null;
+  // Email verificación
+  reenvioMensaje: string = '';
+  reenvioError: string = '';
+  reenvioEnviado: boolean = false;
+
   constructor(
     private usuarioService: UsuarioService,
     private router: Router,
@@ -179,8 +196,14 @@ export class HomeComponent implements OnInit {
   }
 
   onBusquedaResultados(usuarios: any[]): void {
+    console.log('Resultados de búsqueda recibidos:', usuarios.length, 'usuarios');
     this.listaUsuarios = usuarios.filter((user: any) => user.id !== this.currentUser?.id);
-    this.cdr.detectChanges();
+    console.log('Lista actualizada:', this.listaUsuarios.length, 'usuarios después de filtrar');
+    if (this.listaUsuarios.length === 0) {
+      this.estadoMensaje = 'No se encontraron usuarios que cumplan los criterios.';
+    } else {
+      this.estadoMensaje = '';
+    }
   }
 
   logout(): void {
@@ -197,16 +220,125 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  verificarEmail(): void {
-    this.usuarioService.verificarEmailManual().subscribe({
-      next: (response) => {
-        this.currentUser.email_verified = true;
-        alert('Email verificado correctamente');
+  irAPremium(): void {
+    this.router.navigate(['/premium']);
+  }
+
+  // ── CONTRATOS ──
+  cargarMisContratos(): void {
+    this.usuarioService.obtenerMisContratos().subscribe({
+      next: (contratos: any[]) => {
+        this.misContratos = contratos;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        alert('Error al verificar email');
+      error: (err: any) => {
+        console.error('Error cargando contratos:', err);
       }
     });
+  }
+
+  toggleContratos(): void {
+    this.mostrarContratos = !this.mostrarContratos;
+    if (this.mostrarContratos && this.misContratos.length === 0) {
+      this.cargarMisContratos();
+    }
+  }
+
+  get contratosFiltrados(): any[] {
+    if (this.contratoFiltro === 'todos') return this.misContratos;
+    return this.misContratos.filter(c => c.status === this.contratoFiltro);
+  }
+
+  abrirModalContrato(profesional: any): void {
+    // Verificación de email deshabilitada temporalmente
+    // if (!this.currentUser?.email_verified) {
+    //   alert('⚠️ Debes verificar tu email antes de crear contratos.');
+    //   return;
+    // }
+    this.profesionalParaContrato = profesional;
+    this.descripcionContrato = '';
+    this.contratoError = '';
+    this.contratoMensaje = '';
+    this.modalContrato = true;
+    this.cdr.detectChanges();
+  }
+
+  reenviarVerificacion(): void {
+    this.reenvioMensaje = '';
+    this.reenvioError = '';
+    this.usuarioService.reenviarVerificacion().subscribe({
+      next: () => {
+        this.reenvioMensaje = '✓ Email enviado. Revisa tu bandeja de entrada.';
+        this.reenvioEnviado = true;
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.reenvioError = err.error?.error || 'Error al reenviar el email';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cerrarModalContrato(): void {
+    this.modalContrato = false;
+    this.profesionalParaContrato = null;
+    this.cdr.detectChanges();
+  }
+
+  crearContrato(): void {
+    if (!this.descripcionContrato.trim()) {
+      this.contratoError = 'Por favor describe el trabajo a realizar';
+      return;
+    }
+    this.usuarioService.crearContrato(this.profesionalParaContrato.id, this.descripcionContrato).subscribe({
+      next: (contrato: any) => {
+        this.contratoMensaje = '¡Contrato creado correctamente!';
+        this.contratoError = '';
+        this.misContratos.unshift(contrato);
+        setTimeout(() => this.cerrarModalContrato(), 1500);
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.contratoError = err.error?.error || 'Error al crear el contrato';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  actualizarContrato(contrato: any, nuevoEstado: string): void {
+    const confirmMsg = nuevoEstado === 'completed'
+      ? '¿Marcar este contrato como completado?'
+      : '¿Cancelar este contrato?';
+    if (!confirm(confirmMsg)) return;
+
+    this.usuarioService.actualizarEstadoContrato(contrato.id, nuevoEstado).subscribe({
+      next: (updated: any) => {
+        const idx = this.misContratos.findIndex(c => c.id === contrato.id);
+        if (idx !== -1) this.misContratos[idx] = { ...this.misContratos[idx], ...updated };
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        alert(err.error?.error || 'Error al actualizar contrato');
+      }
+    });
+  }
+
+  getStatusLabel(status: string): string {
+    const labels: any = { active: 'Activo', completed: 'Completado', cancelled: 'Cancelado' };
+    return labels[status] || status;
+  }
+
+  getStatusClass(status: string): string {
+    const classes: any = { active: 'estado-activo', completed: 'estado-completado', cancelled: 'estado-cancelado' };
+    return classes[status] || '';
+  }
+
+  esCliente(contrato: any): boolean {
+    return contrato.client_id === this.currentUser?.id;
+  }
+
+  verPerfil(user: any): void {
+    this.perfilExpandido = this.perfilExpandido?.id === user.id ? null : user;
+    this.cdr.detectChanges();
   }
 }

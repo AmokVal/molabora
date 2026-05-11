@@ -1,43 +1,46 @@
-<div class="login">
-  <div style="max-width: 400px; margin: 60px auto; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
-    <h2 style="text-align: center; margin-bottom: 30px; color: #333; font-size: 2rem;">Molabora</h2>
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <span class="logo-m">m</span><span class="logo-o">o</span><span class="logo-labora">labora</span>
+    </div>
+    <p class="login-subtitulo">Accede a tu cuenta</p>
+
+    <!-- Alerta error -->
+    <div *ngIf="mensaje" class="alert alert-error">{{ mensaje }}</div>
 
     <form (ngSubmit)="entrar()">
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Email:</label>
-        <input type="email" 
-               name="email" 
-               [(ngModel)]="credenciales.email" 
-               placeholder="Tu correo" 
-               required
-               style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; box-sizing: border-box;">
+      <div class="campo">
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="credenciales.email"
+          placeholder="usuario@ejemplo.com"
+          required
+        />
       </div>
 
-      <div style="margin-bottom: 25px;">
-        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Contraseña:</label>
-        <input type="password" 
-               name="password" 
-               [(ngModel)]="credenciales.password" 
-               placeholder="Tu clave secreta" 
-               required
-               style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; box-sizing: border-box;">
+      <div class="campo">
+        <label>Contraseña</label>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="credenciales.password"
+          placeholder="Tu contraseña"
+          required
+        />
       </div>
 
-      <button type="submit" 
-              [disabled]="cargando"
-              style="width: 100%; padding: 14px; background: #007bff; color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-        {{ cargando ? '⏳ Entrando...' : '✓ Entrar' }}
+      <button type="submit" class="btn-entrar" [disabled]="cargando">
+        {{ cargando ? '⏳ Entrando...' : 'Entrar' }}
       </button>
     </form>
 
-    <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
-      <p style="color: #666; margin: 0;">¿Aún no tienes cuenta?</p>
-      <a routerLink="/registro" style="color: #007bff; text-decoration: none; font-weight: 600; cursor: pointer;">Crea una aquí</a>
+    <div class="login-footer">
+      <p>¿Aún no tienes cuenta?</p>
+      <a routerLink="/registro">Regístrate gratis</a>
     </div>
-  </div>
-
-  <!-- Mensaje de error si existe -->
-  <div *ngIf="mensaje" style="max-width: 400px; margin: 20px auto; padding: 15px; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; border-radius: 6px; text-align: center;">
-    {{ mensaje }}
   </div>
 </div>

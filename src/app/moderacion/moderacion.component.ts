@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { UsuarioService } from '../usuario.service';
 
 @Component({
@@ -25,6 +26,7 @@ export class ModeracionComponent implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
+    private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -146,5 +148,28 @@ export class ModeracionComponent implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  togglePremium(usuario: any): void {
+    const accion = usuario.is_premium ? 'quitar el Premium a' : 'dar Premium a';
+    if (!confirm(`¿Estás seguro de que quieres ${accion} ${usuario.name}?`)) return;
+
+    this.usuarioService.cambiarPremiumUsuario(usuario.id, !usuario.is_premium).subscribe({
+      next: (result: any) => {
+        this.successMensaje = result.message;
+        setTimeout(() => this.successMensaje = '', 3000);
+        this.cargarUsuarios();
+        this.cargarEstadisticas();
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.errorMensaje = err.error?.error || 'Error al actualizar premium';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  volverHome(): void {
+    this.router.navigate(['/home']);
   }
 }

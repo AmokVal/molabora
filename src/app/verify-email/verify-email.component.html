@@ -1,4 +1,36 @@
-<div style="padding: 40px 20px; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+<div class="verify-page">
+  <div class="verify-card">
+
+    <!-- Logo -->
+    <div class="verify-logo">
+      <span class="logo-m">m</span><span class="logo-o">◉</span><span class="logo-labora">labora</span>
+    </div>
+
+    <!-- Cargando -->
+    <div *ngIf="estado === 'cargando'" class="verify-estado">
+      <div class="spinner"></div>
+      <p>Verificando tu email...</p>
+    </div>
+
+    <!-- Éxito -->
+    <div *ngIf="estado === 'exito'" class="verify-estado">
+      <div class="verify-icono exito">OK</div>
+      <h2>¡Email verificado!</h2>
+      <p>{{ mensaje }}</p>
+      <p class="redirigiendo">Redirigiendo al login en 3 segundos...</p>
+      <button class="btn-login" (click)="irAlLogin()">Ir al Login</button>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="estado === 'error'" class="verify-estado">
+      <div class="verify-icono error">Error</div>
+      <h2>Error de verificación</h2>
+      <p>{{ mensaje }}</p>
+      <button class="btn-login" (click)="irAlLogin()">Volver al Login</button>
+    </div>
+
+  </div>
+</div><div style="padding: 40px 20px; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
   <div style="background: white; border-radius: 12px; padding: 40px; max-width: 500px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); text-align: center;">
     <h2 style="color: #333; margin-top: 0;">Redirigiendo...</h2>
     <p style="color: #666;">Volviendo al login.</p>

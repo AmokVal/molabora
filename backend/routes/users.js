@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../db');
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'secreto';
+const SECRET = process.env.JWT_SECRET || 'molabora_secret_jwt_2024';
 const VALID_ROLES = ['normal', 'administrador'];
 
 function verifyToken(req, res, next) {
@@ -72,23 +72,22 @@ router.get('/search', verifyToken, async (req, res) => {
       console.log('✓ Filtro por especialización:', especializacion);
     }
 
-    // Filtrar usuarios que tienen rates válido (no vacío)
-    query += ` AND rates IS NOT NULL AND rates != ''`;
-
-    // Presupuesto mínimo (por defecto 1€)
-    const minValue = presupuestoMin ? parseFloat(presupuestoMin) : 1;
-    if (!isNaN(minValue)) {
-      query += ` AND (rates::numeric >= $${paramCount})`;
-      params.push(minValue);
-      paramCount++;
-      console.log('✓ Presupuesto mínimo:', minValue, '€');
+    // Filtro presupuesto mínimo (solo si el usuario lo especificó explícitamente)
+    if (presupuestoMin && presupuestoMin !== '' && presupuestoMin !== '0') {
+      const minValue = parseFloat(presupuestoMin);
+      if (!isNaN(minValue) && minValue > 0) {
+        query += ` AND rates IS NOT NULL AND rates != '' AND (rates::numeric >= $${paramCount})`;
+        params.push(minValue);
+        paramCount++;
+        console.log('✓ Presupuesto mínimo:', minValue, '€');
+      }
     }
 
-    // Presupuesto máximo
+    // Filtro presupuesto máximo (solo si el usuario lo especificó)
     if (presupuestoMax && presupuestoMax !== '') {
       const maxValue = parseFloat(presupuestoMax);
-      if (!isNaN(maxValue)) {
-        query += ` AND (rates::numeric <= $${paramCount})`;
+      if (!isNaN(maxValue) && maxValue > 0) {
+        query += ` AND rates IS NOT NULL AND rates != '' AND (rates::numeric <= $${paramCount})`;
         params.push(maxValue);
         paramCount++;
         console.log('✓ Presupuesto máximo:', maxValue, '€');

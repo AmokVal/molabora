@@ -1,76 +1,109 @@
-<div style="padding: 40px 20px; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-  <div style="max-width: 600px; margin: 0 auto;">
-    <!-- Tarjeta Premium -->
-    <div style="background: white; border-radius: 15px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); text-align: center;">
-      <div style="font-size: 5em; margin-bottom: 20px;">⭐</div>
-      
-      <h1 style="margin: 0 0 10px 0; color: #333;">MoLabora Premium</h1>
-      <p style="color: #666; font-size: 1.1em; margin: 0 0 30px 0;">Desbloquea todas las características premium</p>
+<div class="premium-page">
+  <div class="premium-container">
 
-      <!-- Mensajes de estado -->
-      <div *ngIf="error" style="background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        {{ error }}
-      </div>
+    <!-- Header -->
+    <div class="premium-header">
+      <button class="btn-volver" (click)="volver()">← Volver</button>
+      <h1>MoLabora <span class="premium-gold">Premium</span></h1>
+      <p class="premium-subtitulo">Desbloquea todo el potencial de la plataforma</p>
+    </div>
 
-      <div *ngIf="mensaje" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        {{ mensaje }}
-      </div>
+    <!-- Mensajes -->
+    <div *ngIf="error" class="alerta alerta-error">{{ error }}</div>
+    <div *ngIf="mensaje" class="alerta alerta-exito">{{ mensaje }}</div>
 
-      <!-- Estado actual -->
-      <div *ngIf="usuario" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
-        <h3 style="margin-top: 0; color: #333;">Tu Cuenta</h3>
-        <p style="margin: 10px 0;"><strong>{{ usuario.name }}</strong></p>
-        <p style="margin: 0; color: #666;">
-          <span *ngIf="usuario.is_premium" style="background: #ffc107; color: #333; padding: 6px 12px; border-radius: 20px; font-weight: 600;">
-            ⭐ PREMIUM
-          </span>
-          <span *ngIf="!usuario.is_premium" style="background: #ddd; color: #666; padding: 6px 12px; border-radius: 20px;">
-            Usuario Normal
-          </span>
-        </p>
+    <!-- Estado actual del usuario -->
+    <div *ngIf="usuario" class="estado-usuario">
+      <div class="estado-info">
+        <span class="estado-nombre">{{ usuario.name }}</span>
+        <span *ngIf="usuario.is_premium" class="badge-premium">PREMIUM ACTIVO</span>
+        <span *ngIf="!usuario.is_premium" class="badge-normal">Usuario Normal</span>
       </div>
+      <div *ngIf="usuario.is_premium && usuario.premium_expires_at" class="estado-expira">
+        Válido hasta: {{ usuario.premium_expires_at | date:'dd/MM/yyyy' }}
+      </div>
+      <div *ngIf="usuario.is_premium && !usuario.premium_expires_at" class="estado-expira">
+        ✨ Acceso Permanente
+      </div>
+    </div>
+
+    <!-- Ya es premium -->
+    <div *ngIf="usuario?.is_premium" class="ya-premium">
+      <div class="ya-premium-icon">★</div>
+      <h2>¡Ya eres usuario Premium!</h2>
+      <p>Disfruta de todos los beneficios exclusivos de MoLabora Premium.</p>
+      <button class="btn-primary" (click)="volver()">Ir al inicio</button>
+    </div>
+
+    <!-- Contenido si NO es premium -->
+    <div *ngIf="!usuario?.is_premium">
 
       <!-- Beneficios -->
-      <div style="text-align: left; background: #f0f7ff; padding: 25px; border-radius: 10px; margin-bottom: 30px;">
-        <h3 style="margin-top: 0; color: #333;">Beneficios Premium:</h3>
-        <ul style="list-style: none; padding: 0; margin: 0;">
-          <li style="padding: 10px 0; border-bottom: 1px solid #ddd;">✓ Aparece primero en búsquedas</li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #ddd;">✓ Acceso a estadísticas avanzadas</li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #ddd;">✓ Mensajes sin límite</li>
-          <li style="padding: 10px 0; border-bottom: 1px solid #ddd;">✓ Perfil destacado</li>
-          <li style="padding: 10px 0;">✓ Soporte prioritario</li>
-        </ul>
+      <div class="beneficios-grid">
+        <div class="beneficio-item">
+          <span class="beneficio-icono">↑</span>
+          <strong>Primero en búsquedas</strong>
+          <p>Tu perfil aparece destacado ante los demás</p>
+        </div>
+        <div class="beneficio-item">
+          <span class="beneficio-icono">✉</span>
+          <strong>Mensajes ilimitados</strong>
+          <p>Sin restricciones en la mensajería</p>
+        </div>
+        <div class="beneficio-item">
+          <span class="beneficio-icono">≡</span>
+          <strong>Estadísticas avanzadas</strong>
+          <p>Accede a métricas detalladas de tu perfil</p>
+        </div>
+        <div class="beneficio-item">
+          <span class="beneficio-icono">★</span>
+          <strong>Perfil destacado</strong>
+          <p>Sección especial de perfiles disponibles ya</p>
+        </div>
       </div>
 
-      <!-- Precio -->
-      <div style="margin-bottom: 30px;">
-        <p style="color: #999; text-decoration: line-through; margin: 0;">€59.99</p>
-        <p style="font-size: 3em; font-weight: 700; color: #667eea; margin: 0;">€49.99</p>
-        <p style="color: #999; margin: 5px 0;">Al año (facturación anual)</p>
+      <!-- Planes de precios -->
+      <div class="planes-titulo">
+        <h2>Elige tu plan</h2>
+        <p>Pago único, sin renovación automática</p>
       </div>
 
-      <!-- Botón de compra -->
-      <button 
-        *ngIf="!usuario?.is_premium"
-        (click)="iniciarPago()"
-        [disabled]="cargando"
-        style="width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: pointer; transition: transform 0.3s;"
-      >
-        {{ cargando ? 'Procesando...' : 'Activar Premium Ahora' }}
-      </button>
+      <div *ngIf="cargandoPlanes" class="cargando">Cargando planes...</div>
 
-      <button 
-        *ngIf="usuario?.is_premium"
-        disabled
-        style="width: 100%; padding: 16px; background: #28a745; color: white; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 700; cursor: not-allowed;"
-      >
-        ⭐ Ya eres Premium
-      </button>
+      <div *ngIf="!cargandoPlanes" class="planes-grid">
+        <div
+          *ngFor="let plan of planes"
+          class="plan-card"
+          [class.plan-seleccionado]="planSeleccionado?.id === plan.id"
+          [class.plan-popular]="plan.duration_months === 9"
+          (click)="seleccionarPlan(plan)"
+        >
+          <div *ngIf="plan.duration_months === 9" class="plan-badge-popular">MÁS POPULAR</div>
+          <div *ngIf="plan.is_permanent" class="plan-badge-popular" style="background:#6f42c1">MEJOR VALOR</div>
+          <h3 class="plan-nombre">{{ plan.name }}</h3>
+          <div class="plan-precio">
+            <span class="plan-euros">€{{ getPrecio(plan.price_cents) }}</span>
+            <span class="plan-periodo" *ngIf="!plan.is_permanent">pago único</span>
+            <span class="plan-periodo" *ngIf="plan.is_permanent">de por vida</span>
+          </div>
+          <p class="plan-descripcion">{{ plan.description }}</p>
+          <div class="plan-check" *ngIf="planSeleccionado?.id === plan.id">✓ Seleccionado</div>
+        </div>
+      </div>
 
-      <!-- Nota legal -->
-      <p style="color: #999; font-size: 0.85em; margin-top: 20px;">
-        Nota: Esta es una demostración. Los pagos reales se procesarían a través de Stripe.
-      </p>
+      <!-- Botón pago -->
+      <div class="pago-accion">
+        <button
+          class="btn-pagar"
+          (click)="iniciarPago()"
+          [disabled]="cargando || !planSeleccionado"
+        >
+          <span *ngIf="!cargando">Pagar con Stripe — €{{ planSeleccionado ? getPrecio(planSeleccionado.price_cents) : '0.00' }}</span>
+          <span *ngIf="cargando">⏳ Redirigiendo a Stripe...</span>
+        </button>
+        <p class="pago-seguro">Pago seguro procesado por Stripe. No guardamos datos de tarjeta.</p>
+      </div>
+
     </div>
   </div>
 </div>

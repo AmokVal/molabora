@@ -1,24 +1,52 @@
-<div class="registro">
-  <h2>Crear cuenta en Molabora</h2>
+<div class="registro-page">
+  <div class="registro-card">
 
-  <form (ngSubmit)="enviarRegistro()">
-    <div class="campo">
-      <label>Nombre completo:</label><br>
-      <input type="text" name="name" [(ngModel)]="usuario.name" placeholder="Escribe tu nombre" required>
+    <!-- Logo -->
+    <div class="registro-logo">
+      <span class="logo-m">m</span><span class="logo-o">o</span><span class="logo-labora">labora</span>
     </div>
+    <p class="registro-subtitulo">Crea tu cuenta gratis</p>
 
-    <div class="campo">
-      <label>Email:</label><br>
-      <input type="email" name="email" [(ngModel)]="usuario.email" placeholder="Tu correo" required>
+    <form (ngSubmit)="enviarRegistro()">
+      <div class="campo">
+        <label>Nombre completo</label>
+        <input
+          type="text"
+          name="name"
+          [(ngModel)]="usuario.name"
+          placeholder="Tu nombre"
+          required
+        />
+      </div>
+
+      <div class="campo">
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="usuario.email"
+          placeholder="usuario@ejemplo.com"
+          required
+        />
+      </div>
+
+      <div class="campo">
+        <label>Contraseña</label>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="usuario.password"
+          placeholder="Mínimo 6 caracteres"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn-registrar">Crear cuenta</button>
+    </form>
+
+    <div class="registro-footer">
+      <p>¿Ya tienes cuenta?</p>
+      <a routerLink="/login">Inicia sesión aquí</a>
     </div>
-
-    <div class="campo">
-      <label>Contraseña:</label><br>
-      <input type="password" name="password" [(ngModel)]="usuario.password" placeholder="Tu clave secreta" required>
-    </div>
-
-    <button type="submit">Finalizar Registro</button>
-  </form>
-
-  <p>¿Ya tienes cuenta? <a routerLink="/login">Haz login aquí</a></p>
+  </div>
 </div>

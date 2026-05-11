@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../db');
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'secreto';
+const SECRET = process.env.JWT_SECRET || 'molabora_secret_jwt_2024';
 
 function verifyToken(req, res, next) {
   const authHeader = req.headers['authorization'];

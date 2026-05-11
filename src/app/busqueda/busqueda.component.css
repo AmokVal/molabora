@@ -1,1 +1,130 @@
-/* Estilos para BusquedaComponent */
+.busqueda-wrap {
+  width: 100%;
+}
+
+.busqueda-barra {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.busqueda-input {
+  flex: 1;
+  padding: 11px 16px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+.busqueda-input:focus {
+  border-color: #FF9933;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255,153,51,0.1);
+}
+
+.btn-buscar {
+  padding: 11px 22px;
+  background: #FF9933;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.92rem;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-buscar:hover { background: #e8850a; }
+
+.btn-filtros {
+  padding: 11px 18px;
+  background: #4A3B6B;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.btn-filtros:hover { background: #3a2d58; }
+
+/* Panel filtros */
+.filtros-panel {
+  margin-top: 14px;
+  background: #f8f8f8;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.filtros-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.filtro-campo label {
+  display: block;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+}
+
+.filtro-campo input,
+.filtro-campo select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid #ddd;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.filtro-campo input:focus,
+.filtro-campo select:focus {
+  border-color: #FF9933;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255,153,51,0.1);
+}
+
+.filtros-acciones {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-limpiar {
+  padding: 9px 18px;
+  background: #e9ecef;
+  color: #555;
+  border: none;
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: background 0.2s;
+}
+.btn-limpiar:hover { background: #ddd; }
+
+.btn-aplicar {
+  padding: 9px 20px;
+  background: #FF9933;
+  color: white;
+  border: none;
+  border-radius: 7px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: background 0.2s;
+}
+.btn-aplicar:hover { background: #e8850a; }
+
+@media (max-width: 580px) {
+  .filtros-grid { grid-template-columns: 1fr; }
+  .busqueda-barra { flex-wrap: wrap; }
+  .busqueda-input { min-width: 0; }
+}/* Estilos para BusquedaComponent */

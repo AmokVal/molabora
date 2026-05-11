@@ -114,6 +114,53 @@ async function initializeDatabase() {
       `);
       console.log('✓ Tabla stripe_customers creada');
     }
+
+    // Añadir columna verification_token si no existe
+    const verTokenCheck = await pool.query(
+      `SELECT column_name FROM information_schema.columns WHERE table_name='users' AND column_name='verification_token'`
+    );
+    if (verTokenCheck.rows.length === 0) {
+      await pool.query(`ALTER TABLE users ADD COLUMN verification_token VARCHAR(255)`);
+      console.log('✓ Columna verification_token agregada');
+    }
+
+    // Añadir columna premium_expires_at si no existe
+    const premiumExpiresCheck = await pool.query(
+      `SELECT column_name FROM information_schema.columns WHERE table_name='users' AND column_name='premium_expires_at'`
+    );
+    if (premiumExpiresCheck.rows.length === 0) {
+      console.log('Agregando columna premium_expires_at...');
+      await pool.query(`ALTER TABLE users ADD COLUMN premium_expires_at TIMESTAMP`);
+      console.log('✓ Columna premium_expires_at agregada');
+    }
+
+    // Crear tabla subscription_plans si no existe
+    const plansCheck = await pool.query(
+      "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'subscription_plans')"
+    );
+    if (!plansCheck.rows[0].exists) {
+      console.log('Creando tabla subscription_plans...');
+      await pool.query(`
+        CREATE TABLE subscription_plans (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(100) NOT NULL,
+          duration_months INTEGER,
+          is_permanent BOOLEAN DEFAULT false,
+          price_cents INTEGER NOT NULL,
+          description TEXT,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      // Insertar planes por defecto
+      await pool.query(`
+        INSERT INTO subscription_plans (name, duration_months, is_permanent, price_cents, description) VALUES
+        ('1 Mes',    1,    false, 299,  'Premium durante 1 mes'),
+        ('3 Meses',  3,    false, 699,  'Premium durante 3 meses'),
+        ('9 Meses',  9,    false, 1099, 'Premium durante 9 meses'),
+        ('Permanente', NULL, true, 1800, 'Premium de por vida')
+      `);
+      console.log('✓ Tabla subscription_plans creada con planes por defecto');
+    }
     
     console.log('✓ Base de datos inicializada correctamente');
   } catch (err) {

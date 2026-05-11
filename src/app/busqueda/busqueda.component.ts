@@ -30,13 +30,10 @@ export class BusquedaComponent implements OnInit {
   }
 
   buscar(): void {
-    // Si no hay presupuesto mínimo, asumir 1€
-    const presupuestoMinimo = this.presupuestoMin && this.presupuestoMin !== '' ? this.presupuestoMin : '1';
-    
     const filtro = {
       nombre: this.nombre,
       especializacion: this.especializacion,
-      presupuestoMin: presupuestoMinimo,
+      presupuestoMin: this.presupuestoMin,
       presupuestoMax: this.presupuestoMax,
       ordenar: this.ordenar
     };

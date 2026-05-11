@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require('../db');
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'secreto';
+const SECRET = process.env.JWT_SECRET || 'molabora_secret_jwt_2024';
 
 function verifyToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -33,7 +33,7 @@ function verifyAdmin(req, res, next) {
 router.get('/users', verifyToken, verifyAdmin, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, name, email, role, is_premium, is_banned, ban_reason, email_verified, created_at FROM users ORDER BY is_premium DESC, name ASC'
+      'SELECT id, name, email, role, is_premium, is_banned, ban_reason, email_verified FROM users ORDER BY is_premium DESC, name ASC'
     );
     res.json(result.rows);
   } catch (error) {
@@ -66,7 +66,7 @@ router.patch('/users/:userId/role', verifyToken, verifyAdmin, async (req, res) =
     }
 
     const result = await pool.query(
-      'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, name, email, role',
+      'UPDATE users SET role = $1 WHERE id = $2 RETURNING id, name, email, role, is_premium',
       [role, userId]
     );
 
@@ -81,6 +81,38 @@ router.patch('/users/:userId/role', verifyToken, verifyAdmin, async (req, res) =
   } catch (error) {
     console.error('Error actualizando rol:', error);
     res.status(500).json({ error: 'Error al actualizar rol' });
+  }
+});
+
+// Cambiar estado premium de usuario
+router.patch('/users/:userId/premium', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { is_premium } = req.body;
+
+    if (typeof is_premium !== 'boolean') {
+      return res.status(400).json({ error: 'El valor de premium debe ser true o false' });
+    }
+
+    // Si se activa premium permanente, limpiar fecha de expiración
+    const premiumExpiresAt = is_premium ? null : null;
+
+    const result = await pool.query(
+      'UPDATE users SET is_premium = $1, premium_expires_at = $2 WHERE id = $3 RETURNING id, name, email, role, is_premium, premium_expires_at',
+      [is_premium, premiumExpiresAt, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({
+      message: is_premium ? 'Premium activado correctamente' : 'Premium desactivado correctamente',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error actualizando premium:', error);
+    res.status(500).json({ error: 'Error al actualizar premium' });
   }
 });
 
@@ -119,7 +151,7 @@ router.post('/users/:userId/unban', verifyToken, verifyAdmin, async (req, res) =
     const { userId } = req.params;
 
     const result = await pool.query(
-      'UPDATE users SET is_banned = false, ban_reason = NULL WHERE id = $2 RETURNING id, name, email, is_banned',
+      'UPDATE users SET is_banned = false, ban_reason = NULL WHERE id = $1 RETURNING id, name, email, is_banned',
       [userId]
     );
 
@@ -143,7 +175,7 @@ router.post('/users/:userId/verify-email', verifyToken, verifyAdmin, async (req,
     const { userId } = req.params;
 
     const result = await pool.query(
-      'UPDATE users SET email_verified = true, verification_token = NULL WHERE id = $1 RETURNING id, name, email, email_verified',
+      'UPDATE users SET email_verified = true WHERE id = $1 RETURNING id, name, email, email_verified',
       [userId]
     );
 
@@ -161,6 +193,33 @@ router.post('/users/:userId/verify-email', verifyToken, verifyAdmin, async (req,
   }
 });
 
+// Dar/quitar premium a usuario
+router.patch('/users/:userId/premium', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { is_premium } = req.body;
+
+    const premiumExpiresAt = is_premium ? null : null; // permanente cuando lo da el admin
+
+    const result = await pool.query(
+      'UPDATE users SET is_premium = $1, premium_expires_at = $2 WHERE id = $3 RETURNING id, name, email, is_premium, premium_expires_at',
+      [is_premium, is_premium ? null : null, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    res.json({
+      message: is_premium ? 'Premium activado correctamente' : 'Premium desactivado correctamente',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Error actualizando premium:', error);
+    res.status(500).json({ error: 'Error al actualizar premium' });
+  }
+});
+
 // Obtener estadísticas
 router.get('/stats', verifyToken, verifyAdmin, async (req, res) => {
   try {
@@ -173,6 +232,7 @@ router.get('/stats', verifyToken, verifyAdmin, async (req, res) => {
         (SELECT COUNT(*) FROM contracts WHERE status = 'active') as active_contracts,
         (SELECT COUNT(*) FROM contracts WHERE status = 'completed') as completed_contracts
     `);
+    // Nota: email_verified existe en la tabla
 
     res.json(stats.rows[0]);
   } catch (error) {
